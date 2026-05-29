@@ -1,4 +1,4 @@
-# chill-argocd
+# home-argocd
 
 GitOps repo for the **lacia-cluster** (home Kubernetes cluster). Uses ArgoCD with the App of Apps pattern.
 
@@ -140,7 +140,7 @@ kubectl -n argocd get secret argocd-initial-admin-secret \
 ## Repo structure
 
 ```
-chill-argocd/
+home-argocd/
 ├── bootstrap/               # One-time manual install (ArgoCD Helm values)
 ├── apps/                    # ArgoCD Application definitions (App of Apps)
 │   ├── root.yaml            # Watches this apps/ directory
