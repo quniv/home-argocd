@@ -1,0 +1,41 @@
+# ArgoCD Helm values for lacia-cluster (home k8s)
+#
+# Install with:
+#   helm repo add argo https://argoproj.github.io/argo-helm
+#   helm install argocd argo/argo-cd \
+#     --namespace argocd --create-namespace \
+#     --version 7.x \
+#     -f bootstrap/argocd-values.yaml
+
+global:
+  domain: argocd.chillpickle.org
+
+configs:
+  params:
+    # TLS is terminated by the Cilium Gateway API — ArgoCD runs plain HTTP internally
+    server.insecure: "true"
+
+server:
+  resources:
+    requests: { cpu: 50m, memory: 128Mi }
+    limits:   { cpu: 200m, memory: 256Mi }
+
+controller:
+  resources:
+    requests: { cpu: 100m, memory: 256Mi }
+    limits:   { cpu: 500m, memory: 512Mi }
+
+repoServer:
+  resources:
+    requests: { cpu: 50m, memory: 128Mi }
+    limits:   { cpu: 200m, memory: 256Mi }
+
+applicationSet:
+  resources:
+    requests: { cpu: 50m, memory: 64Mi }
+    limits:   { cpu: 100m, memory: 128Mi }
+
+notifications:
+  resources:
+    requests: { cpu: 25m, memory: 64Mi }
+    limits:   { cpu: 100m, memory: 128Mi }

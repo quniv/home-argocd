@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vvn-backend
+  namespace: vvn
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vvn-backend
+  template:
+    metadata:
+      labels:
+        app: vvn-backend
+    spec:
+      initContainers:
+        - name: migrate
+          image: ghcr.io/qitpydev/vvn-ce-backend:latest
+          command: ["alembic", "upgrade", "head"]
+          envFrom:
+            - configMapRef:
+                name: vvn-backend-config
+            - secretRef:
+                name: vvn-backend-secrets
+      containers:
+        - name: api
+          image: ghcr.io/qitpydev/vvn-ce-backend:latest
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: vvn-backend-config
+            - secretRef:
+                name: vvn-backend-secrets
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

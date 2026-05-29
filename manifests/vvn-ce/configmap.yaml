@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vvn-backend-config
+  namespace: vvn
+data:
+  REDIS_URL: "redis://redis:6379/0"
+  OPENROUTER_MODEL: "z-ai/glm-4.5-air:free"
+  OPENROUTER_BASE_URL: "https://openrouter.ai/api/v1"
+  DEBUG: "false"
+  CORS_ORIGINS: '["*"]'
+  USE_LLM_FALLBACK: "false"
+  CACHE_TTL_SECONDS: "2592000"
