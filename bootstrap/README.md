@@ -1,48 +1,30 @@
-# k8s-lab
+# Bootstrap
 
-A local Kubernetes learning lab environment. 3-node cluster (1 control plane + 2 workers) provisioned with Vagrant + libvirt on Linux.
+One-time setup steps to bring up the lacia-cluster from scratch. Run in order.
 
-## Quick Start
+| Step | What it does |
+|---|---|
+| `1.cluster/` | Vagrant VMs + kubeadm cluster init |
+| `2.cilium/` | Cilium CNI, L2 announcements, LoadBalancer IP pool |
+| `3.ddns/` | Cloudflare DDNS to keep the home IP updated |
+| `4.cert-manager/` | cert-manager + Let's Encrypt wildcard cert for `*.chillpickle.org` |
+| `5.gatewayapi/` | `infra` namespace, Cilium Gateway `external`, TLS termination |
+| `6.argocd/` | ArgoCD install + hand off to GitOps |
 
-### 1. Provision VMs
+After step 6, install ESO and seed the Infisical secret:
+
 ```bash
-cd vagrant
-vagrant up
+helm install external-secrets external-secrets/external-secrets \
+  -n external-secrets --create-namespace --version 0.14.x
+
+kubectl create secret generic infisical-auth \
+  --from-literal=clientId=<ID> \
+  --from-literal=clientSecret=<SECRET> \
+  -n external-secrets
 ```
 
-### 2. Initialize Kubernetes Cluster
+Then apply the root ArgoCD app — it takes over from here:
+
 ```bash
-vagrant ssh cp-node
-sudo kubeadm init --config=/vagrant/kubeadm-config.yml
-mkdir -p ~/.kube
-sudo cp /etc/kubernetes/admin.conf ~/.kube/config
-sudo chown vagrant:vagrant ~/.kube/config
-exit
+kubectl apply -f ../apps/root.yaml
 ```
-
-### 3. Join Worker Nodes
-Get token from kubeadm init output, then:
-```bash
-vagrant ssh worker-1
-sudo kubeadm join 192.168.121.184:6443 --token <TOKEN> --discovery-token-ca-cert-hash sha256:<HASH>
-exit
-
-vagrant ssh worker-2
-sudo kubeadm join 192.168.121.184:6443 --token <TOKEN> --discovery-token-ca-cert-hash sha256:<HASH>
-exit
-```
-
-### 4. Install Cilium (CNI)
-See [cilium/README.md](cilium/README.md)
-
-### 5. Install Cloudflare DDNS
-See [ddns/README.md](ddns/README.md)
-
-### 6. Install Cert-Manager
-See [cert-manager/README.md](cert-manager/README.md)
-
-### 7. Install Infra/Gateway/Demo
-See [infra/README.md](infra/README.md)
-
-### 8. Install ArgoCD
-See [argocd/README.md](argocd/README.md)

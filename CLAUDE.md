@@ -29,7 +29,7 @@ apps/root.yaml          ← applied manually once; watches apps/ dir
 
 ## Cluster network
 
-- **Pod CIDR**: 10.244.0.0/24 | **Service CIDR**: 10.96.0.0/16
+- **Pod CIDR**: 10.244.0.0/16 | **Service CIDR**: 10.96.0.0/16
 - **LoadBalancer IP pool**: 192.168.1.235–192.168.1.254 (Cilium L2 announcements on eth1)
 - CNI: Cilium with VXLAN tunnel, kube-proxy replacement, Gateway API enabled
 
@@ -70,7 +70,7 @@ spec:
 The `bootstrap/` directory maps to ordered steps:
 
 ```
-1.cluster/    — Vagrant + kubeadm (3-node: cp-node 192.168.121.184, worker-1, worker-2)
+1.cluster/    — Vagrant + kubeadm (3-node: cp-node 192.168.122.10, worker-1, worker-2)
 2.cilium/     — Cilium CNI (helm install -f values.yaml), then apply l2.yml + pools.yml
 3.ddns/       — Cloudflare DDNS deployment (reads bootstrap/.env for token + zone)
 4.cert-manager/ — cert-manager helm + ClusterIssuer + wildcard Certificate
