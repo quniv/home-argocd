@@ -1,0 +1,7 @@
+global:
+  domain: argocd.chillpickle.org
+
+configs:
+  params:
+    # TLS is terminated by the Cilium Gateway — ArgoCD runs plain HTTP internally.
+    server.insecure: "true"
