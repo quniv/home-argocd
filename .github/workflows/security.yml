@@ -39,7 +39,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Run Trivy config scan
         # Scans the entire repository for IaC misconfigurations.
@@ -71,7 +71,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Run Checkov scan
         # Scans Kubernetes manifests and checks for exposed secrets.
@@ -103,7 +103,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Run kube-linter
         # Scans manifests/ against .kube-linter.yaml which excludes checks
