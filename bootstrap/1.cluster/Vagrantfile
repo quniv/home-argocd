@@ -1,0 +1,91 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "generic/ubuntu2204"
+  config.vm.box_version = ">= 4.2.0"
+
+  config.vm.provider "libvirt" do |libvirt|
+    libvirt.uri = "qemu:///system"
+    libvirt.storage_pool_name = "default"
+    libvirt.storage_pool_path = "/var/lib/libvirt/images"
+  end
+
+  # Minimal provision script - just base system setup
+  $provision_script = <<-SCRIPT
+    set -e
+
+    # Update system packages
+    apt-get update
+    apt-get upgrade -y
+
+    # Install basic tools
+    apt-get install -y curl wget git vim
+
+    # Disable swap (required for kubelet)
+    swapoff -a
+    sed -i '/ swap / s/^/#/' /etc/fstab
+
+    # Enable kernel modules for networking (persistent across reboots)
+    cat > /etc/modules-load.d/k8s.conf <<EOF
+overlay
+br_netfilter
+EOF
+    modprobe overlay
+    modprobe br_netfilter
+
+    # Configure sysctl for Kubernetes
+    cat > /etc/sysctl.d/k8s.conf <<EOF
+net.bridge.bridge-nf-call-iptables = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.ipv4.ip_forward = 1
+EOF
+
+    sysctl --system
+
+    echo "=== Base system ready for $(hostname) ==="
+    echo "Install manually: Docker, kubelet, kubeadm, kubectl"
+  SCRIPT
+
+  # Control plane node
+  config.vm.define "cp-node" do |cp|
+    cp.vm.hostname = "cp-node"
+    cp.vm.network "private_network", ip: "192.168.122.10", libvirt__network_name: "default"
+
+    cp.vm.provider "libvirt" do |libvirt|
+      libvirt.memory = 4096
+      libvirt.cpus = 2
+      libvirt.cpu_mode = "host-passthrough"
+    end
+
+    cp.vm.provision "shell", inline: $provision_script
+  end
+
+  # Worker node 1
+  config.vm.define "worker-1" do |w1|
+    w1.vm.hostname = "worker-1"
+    w1.vm.network "private_network", ip: "192.168.122.11", libvirt__network_name: "default"
+
+    w1.vm.provider "libvirt" do |libvirt|
+      libvirt.memory = 4096
+      libvirt.cpus = 2
+      libvirt.cpu_mode = "host-passthrough"
+    end
+
+    w1.vm.provision "shell", inline: $provision_script
+  end
+
+  # Worker node 2
+  config.vm.define "worker-2" do |w2|
+    w2.vm.hostname = "worker-2"
+    w2.vm.network "private_network", ip: "192.168.122.12", libvirt__network_name: "default"
+
+    w2.vm.provider "libvirt" do |libvirt|
+      libvirt.memory = 4096
+      libvirt.cpus = 2
+      libvirt.cpu_mode = "host-passthrough"
+    end
+
+    w2.vm.provision "shell", inline: $provision_script
+  end
+end

@@ -1,0 +1,19 @@
+USER-SUPPLIED VALUES:
+bgpControlPlane:
+  enabled: false
+cluster:
+  name: lacia-cluster
+gatewayAPI:
+  enabled: true
+gatewayAPIv1beta1:
+  enabled: false
+ipam:
+  mode: kubernetes
+ipv4NativeRoutingCIDR: 10.244.0.0/16
+kubeProxyReplacement: true
+l2announcements:
+  enabled: true
+operator:
+  replicas: 1
+routingMode: tunnel
+tunnelProtocol: vxlan
