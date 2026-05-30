@@ -1,0 +1,72 @@
+---
+# Lint workflow — validates all YAML and Kubernetes manifests.
+#
+# Jobs:
+#   yamllint   — checks syntax/style of manifests/ and apps/ against .yamllint.yml
+#   kubeconform — validates manifests against the Kubernetes 1.28 schema;
+#                 unknown CRD kinds (ArgoCD, Gateway API, ESO, Cilium) are
+#                 resolved via the CRDs-catalog; anything still unknown is
+#                 skipped with --ignore-missing-schemas rather than failing.
+#
+# bootstrap/ is intentionally excluded: it contains one-time setup files
+# with known style deviations that are not actively managed.
+name: Lint
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  yamllint:
+    name: YAML lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: Run yamllint on manifests and apps
+        # Scopes to manifests/ and apps/ only — these are the paths ArgoCD
+        # syncs and must remain valid. bootstrap/ has intentional deviations.
+        run: yamllint -c .yamllint.yml manifests/ apps/
+
+  kubeconform:
+    name: Kubeconform manifest validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install kubeconform
+        # Fetches the latest release binary directly from GitHub; no
+        # third-party action required and no pinned version to keep stale.
+        run: |
+          KUBECONFORM_VERSION=$(curl -s https://api.github.com/repos/yannh/kubeconform/releases/latest \
+            | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
+          curl -sSL "https://github.com/yannh/kubeconform/releases/download/v${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz" \
+            | tar -xz kubeconform
+          sudo mv kubeconform /usr/local/bin/
+          kubeconform -v
+
+      - name: Validate Kubernetes manifests
+        # Schema resolution order:
+        #   1. Built-in k8s 1.28 schema (default)
+        #   2. CRDs-catalog — covers ArgoCD (argoproj.io), Gateway API
+        #      (gateway.networking.k8s.io), External Secrets Operator
+        #      (external-secrets.io), and cert-manager (cert-manager.io)
+        #   3. --ignore-missing-schemas — Cilium and Infisical-specific CRDs
+        #      not in the catalog are skipped rather than failing the build.
+        run: |
+          kubeconform \
+            -ignore-missing-schemas \
+            -kubernetes-version 1.28.0 \
+            -schema-location default \
+            -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceVersion}}.json' \
+            -summary \
+            manifests/ apps/

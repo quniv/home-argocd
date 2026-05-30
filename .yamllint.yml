@@ -1,0 +1,12 @@
+---
+# yamllint configuration for home-argocd GitOps repo.
+# Kubernetes manifests routinely have long lines (image URLs, env values)
+# and use bare true/false, so both rules are disabled. document-start is
+# disabled because the repo follows the common convention of omitting "---"
+# from single-document files.
+extends: default
+
+rules:
+  line-length: disable
+  truthy: disable
+  document-start: disable

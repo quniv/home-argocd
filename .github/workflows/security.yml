@@ -1,0 +1,126 @@
+---
+# Security scanning workflow — uses every free GitHub security feature
+# available to public repositories.
+#
+# Three independent jobs run in parallel:
+#   trivy      — IaC/config scan with SARIF upload to Security tab
+#   checkov    — Kubernetes + secrets IaC scan with SARIF upload
+#   kube-linter — Kubernetes best-practice linting with SARIF upload
+#
+# All jobs run on:
+#   - push to main
+#   - pull_request to main  (non-blocking: findings are informational)
+#   - weekly schedule (Monday 06:00 UTC) to catch newly published advisories
+#
+# Findings are always uploaded to the Security tab even when a scanner
+# exits non-zero — achieved via `continue-on-error: true` on the scan
+# step and `if: always()` on the upload step.
+name: Security Scanning
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    # Every Monday at 06:00 UTC
+    - cron: "0 6 * * 1"
+
+jobs:
+  trivy:
+    name: Trivy config scan
+    runs-on: ubuntu-latest
+    permissions:
+      # Required for SARIF upload to GitHub Security tab
+      security-events: write
+      actions: read
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Trivy config scan
+        # Scans the entire repository for IaC misconfigurations.
+        # continue-on-error ensures the SARIF upload step always runs
+        # even when Trivy finds issues (exit code 1).
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: config
+          scan-ref: .
+          format: sarif
+          output: trivy-results.sarif
+          # Suppress informational output that clutters the job log
+          severity: MEDIUM,HIGH,CRITICAL
+        continue-on-error: true
+
+      - name: Upload Trivy SARIF results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy-results.sarif
+          category: trivy
+
+  checkov:
+    name: Checkov IaC scan
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Checkov scan
+        # Scans Kubernetes manifests and checks for exposed secrets.
+        # soft_fail: true means Checkov exits 0 even with findings,
+        # so the step never blocks the workflow. The SARIF file is still
+        # generated and uploaded for review in the Security tab.
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: .
+          framework: kubernetes,secrets
+          output_format: sarif
+          # Writes to results/results_sarif.sarif inside the workspace
+          output_file_path: results/results_sarif.sarif
+          soft_fail: true
+
+      - name: Upload Checkov SARIF results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: results/results_sarif.sarif
+          category: checkov
+
+  kube-linter:
+    name: kube-linter manifest scan
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run kube-linter
+        # Scans manifests/ against .kube-linter.yaml which excludes checks
+        # that are impractical for a home-lab setup (latest-tag, single
+        # replica, no anti-affinity). continue-on-error ensures the SARIF
+        # upload runs regardless of findings.
+        uses: stackrox/kube-linter-action@v1
+        with:
+          directory: manifests/
+          config: .kube-linter.yaml
+          format: sarif
+          output-file: kube-linter-results.sarif
+        continue-on-error: true
+
+      - name: Upload kube-linter SARIF results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: kube-linter-results.sarif
+          category: kube-linter

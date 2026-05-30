@@ -1,0 +1,18 @@
+---
+# Dependabot configuration for home-argocd.
+# Keeps GitHub Actions versions up to date with weekly checks.
+# Container images and Helm charts are not tracked here — image updates
+# are handled by ArgoCD image-updater; Helm chart versions are pinned
+# manually in bootstrap/ as one-time setup steps.
+version: 2
+
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+    labels:
+      - dependencies
+      - github-actions

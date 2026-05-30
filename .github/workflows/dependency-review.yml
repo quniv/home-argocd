@@ -1,0 +1,29 @@
+---
+# Dependency Review workflow — surfaces vulnerable or license-incompatible
+# dependencies introduced in a pull request before it merges.
+#
+# For this repo the primary dependency graph consists of GitHub Actions
+# versions declared in workflow files; there are no package manifests
+# (no package.json, requirements.txt, go.mod, etc.).
+#
+# Runs on pull_request only — the action only makes sense in a diff context.
+name: Dependency Review
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  dependency-review:
+    name: Dependency review
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run dependency review
+        uses: actions/dependency-review-action@v4
