@@ -47,12 +47,15 @@ jobs:
         run: yamlfix manifests/ apps/
 
       - name: Commit auto-fixed files (PRs only)
-        # Only commits if yamlfix made changes; no-op otherwise.
+        # Stages manifests/ and apps/ then commits only if yamlfix made changes.
+        # Uses manual git commands to avoid glob-expansion issues with actions.
         if: github.event_name == 'pull_request'
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "style: auto-fix YAML style issues via yamlfix"
-          file_pattern: "manifests/**/*.yml manifests/**/*.yaml apps/**/*.yml apps/**/*.yaml"
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add manifests/ apps/
+          git diff --staged --quiet || git commit -m "style: auto-fix YAML style issues via yamlfix"
+          git push
 
       - name: Run yamllint on manifests and apps
         # Scopes to manifests/ and apps/ only — these are the paths ArgoCD
