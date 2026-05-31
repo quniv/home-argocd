@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -16,7 +17,7 @@ spec:
       initContainers:
         - name: migrate
           image: ghcr.io/qitpydev/vvn-ce-backend:latest
-          command: ["alembic", "upgrade", "head"]
+          command: [alembic, upgrade, head]
           envFrom:
             - configMapRef:
                 name: vvn-backend-config
