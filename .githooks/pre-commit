@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# pre-commit: scan staged changes for secrets using gitleaks.
+# Hard-blocks the commit on any finding. No bypass mechanism.
+set -euo pipefail
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# ── Dependency check ────────────────────────────────────────────────────────
+if ! command -v gitleaks &>/dev/null; then
+  echo -e "${RED}[gitleaks] ERROR: gitleaks is not installed or not in PATH.${NC}"
+  echo -e "${YELLOW}Install it with one of:${NC}"
+  echo "  # Homebrew (macOS/Linux)"
+  echo "  brew install gitleaks"
+  echo ""
+  echo "  # Fedora/RHEL (manual binary — no official package yet)"
+  echo "  GITLEAKS_VERSION=\$(curl -s https://api.github.com/repos/gitleaks/gitleaks/releases/latest | grep tag_name | cut -d'\"' -f4)"
+  echo "  curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/\${GITLEAKS_VERSION}/gitleaks_\${GITLEAKS_VERSION#v}_linux_x64.tar.gz | tar xz -C /usr/local/bin gitleaks"
+  echo ""
+  echo "  See also: https://github.com/gitleaks/gitleaks#installing"
+  exit 1
+fi
+
+# ── Scan staged changes ──────────────────────────────────────────────────────
+echo -e "${YELLOW}[gitleaks] Scanning staged changes for secrets...${NC}"
+
+if ! gitleaks git --pre-commit --staged --verbose --redact; then
+  echo ""
+  echo -e "${RED}╔══════════════════════════════════════════════════════════════╗${NC}"
+  echo -e "${RED}║  COMMIT BLOCKED: gitleaks detected potential secrets         ║${NC}"
+  echo -e "${RED}╠══════════════════════════════════════════════════════════════╣${NC}"
+  echo -e "${RED}║  Review the findings above. If the match is a false positive ║${NC}"
+  echo -e "${RED}║  add an inline comment:  # gitleaks:allow                    ║${NC}"
+  echo -e "${RED}║  or add an allowlist entry to .gitleaks.toml in repo root.   ║${NC}"
+  echo -e "${RED}╚══════════════════════════════════════════════════════════════╝${NC}"
+  exit 1
+fi
+
+echo -e "${GREEN}[gitleaks] No secrets detected. Proceeding with commit.${NC}"

@@ -1,3 +1,4 @@
+---
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -7,7 +8,7 @@ spec:
   # Weekly, Sunday at 02:00 UTC — picks up new words vdict.com adds over time.
   # For the initial bulk crawl, run a one-shot Job manually:
   #   kubectl create job -n vvn vdict-crawler-init --from=cronjob/vdict-crawler
-  schedule: "0 2 * * 0"
+  schedule: 0 2 * * 0
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
@@ -29,17 +30,17 @@ spec:
                       name: vdict-crawler-secret
                       key: db_url
                 - name: CRAWLER_CONCURRENCY
-                  value: "8"
+                  value: '8'
                 - name: CRAWLER_DELAY_MS
-                  value: "100"
+                  value: '100'
                 - name: CRAWLER_BATCH_SIZE
-                  value: "50"
+                  value: '50'
                 - name: CRAWLER_NO_RAW_HTML
-                  value: "true"
+                  value: 'true'
               resources:
                 requests:
-                  cpu: "200m"
-                  memory: "256Mi"
+                  cpu: 200m
+                  memory: 256Mi
                 limits:
-                  cpu: "500m"
-                  memory: "512Mi"
+                  cpu: 500m
+                  memory: 512Mi

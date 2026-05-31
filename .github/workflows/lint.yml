@@ -2,11 +2,13 @@
 # Lint workflow — validates all YAML and Kubernetes manifests.
 #
 # Jobs:
-#   yamllint   — checks syntax/style of manifests/ and apps/ against .yamllint.yml
-#   kubeconform — validates manifests against the Kubernetes 1.28 schema;
-#                 unknown CRD kinds (ArgoCD, Gateway API, ESO, Cilium) are
-#                 resolved via the CRDs-catalog; anything still unknown is
-#                 skipped with --ignore-missing-schemas rather than failing.
+#   yamllint        — checks syntax/style of manifests/ and apps/ against
+#                     .yamllint.yml; on PRs, auto-fixes with yamlfix and
+#                     commits the result back to the branch.
+#   kubeconform     — validates manifests against the Kubernetes 1.28 schema;
+#                     unknown CRD kinds (ArgoCD, Gateway API, ESO, Cilium) are
+#                     resolved via the CRDs-catalog; anything still unknown is
+#                     skipped with --ignore-missing-schemas rather than failing.
 #
 # bootstrap/ is intentionally excluded: it contains one-time setup files
 # with known style deviations that are not actively managed.
@@ -24,12 +26,36 @@ jobs:
   yamllint:
     name: YAML lint
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          # Fetch the actual branch ref so auto-commit can push back;
+          # pull_request events check out a merge commit by default.
+          ref: ${{ github.head_ref || github.ref }}
 
-      - name: Install yamllint
-        run: pip install yamllint
+      - name: Install yamllint and yamlfix
+        run: pip install yamllint yamlfix
+
+      - name: Auto-fix YAML style issues (PRs only)
+        # yamlfix applies the same rules yamllint enforces — trailing spaces,
+        # indentation, missing newline at EOF. Runs before the lint check so
+        # fixable issues never fail the build.
+        if: github.event_name == 'pull_request'
+        run: yamlfix manifests/ apps/
+
+      - name: Commit auto-fixed files (PRs only)
+        # Stages manifests/ and apps/ then commits only if yamlfix made changes.
+        # Uses manual git commands to avoid glob-expansion issues with actions.
+        if: github.event_name == 'pull_request'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add manifests/ apps/
+          git diff --staged --quiet || git commit -m "style: auto-fix YAML style issues via yamlfix"
+          git push
 
       - name: Run yamllint on manifests and apps
         # Scopes to manifests/ and apps/ only — these are the paths ArgoCD
