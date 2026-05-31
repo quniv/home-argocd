@@ -29,7 +29,7 @@ spec:
         - name: redis
           image: redis:7-alpine
           # AOF persistence matches docker-compose.yml behaviour
-          command: [redis-server, --appendonly, yes]
+          command: [redis-server, --appendonly, "yes"]
           ports:
             - containerPort: 6379
           volumeMounts:
