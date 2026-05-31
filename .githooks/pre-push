@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+# pre-push: scan commits being pushed for secrets using gitleaks.
+# Reads the push ref range from stdin (standard git pre-push protocol).
+# Hard-blocks the push on any finding. No bypass mechanism.
+set -euo pipefail
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# ── Dependency check ─────────────────────────────────────────────────────────
+if ! command -v gitleaks &>/dev/null; then
+  echo -e "${RED}[gitleaks] ERROR: gitleaks is not installed or not in PATH.${NC}"
+  echo -e "${YELLOW}Install it with one of:${NC}"
+  echo "  brew install gitleaks"
+  echo "  See: https://github.com/gitleaks/gitleaks#installing"
+  exit 1
+fi
+
+# ── Process each ref being pushed ────────────────────────────────────────────
+# stdin format (one line per ref): local_ref local_sha remote_ref remote_sha
+found_secrets=0
+
+while IFS=' ' read -r local_ref local_sha remote_ref remote_sha; do
+  # Skip branch deletions (local_sha is all zeros — nothing to scan)
+  if [[ "${local_sha}" =~ ^0+$ ]]; then
+    echo -e "${YELLOW}[gitleaks] Skipping deletion of ${remote_ref}.${NC}"
+    continue
+  fi
+
+  # Skip new branches being pushed for the first time (remote_sha is all zeros)
+  # The commits were already scanned by pre-commit when they were created.
+  # Uncomment the block below if you want to scan new branches too.
+  # if [[ "${remote_sha}" =~ ^0+$ ]]; then
+  #   echo -e "${YELLOW}[gitleaks] New branch ${local_ref} — skipping full history scan.${NC}"
+  #   continue
+  # fi
+
+  if [[ "${remote_sha}" =~ ^0+$ ]]; then
+    # New branch: scan from the beginning of this branch's history
+    echo -e "${YELLOW}[gitleaks] Scanning new branch ${local_ref} (full history up to ${local_sha:0:12})...${NC}"
+    if ! gitleaks git --log-opts="${local_sha}" --verbose --redact; then
+      found_secrets=1
+    fi
+  else
+    # Existing branch: scan only the commits not yet on remote
+    echo -e "${YELLOW}[gitleaks] Scanning ${remote_sha:0:12}..${local_sha:0:12} on ${local_ref}...${NC}"
+    if ! gitleaks git --log-opts="${remote_sha}..${local_sha}" --verbose --redact; then
+      found_secrets=1
+    fi
+  fi
+done
+
+# ── Result ───────────────────────────────────────────────────────────────────
+if [[ "${found_secrets}" -eq 1 ]]; then
+  echo ""
+  echo -e "${RED}╔══════════════════════════════════════════════════════════════╗${NC}"
+  echo -e "${RED}║  PUSH BLOCKED: gitleaks detected potential secrets           ║${NC}"
+  echo -e "${RED}╠══════════════════════════════════════════════════════════════╣${NC}"
+  echo -e "${RED}║  Remove or rotate the exposed secret, then amend or rebase  ║${NC}"
+  echo -e "${RED}║  the offending commit(s) before pushing.                    ║${NC}"
+  echo -e "${RED}║  False positive? Add an allowlist entry to .gitleaks.toml.  ║${NC}"
+  echo -e "${RED}╚══════════════════════════════════════════════════════════════╝${NC}"
+  exit 1
+fi
+
+echo -e "${GREEN}[gitleaks] No secrets detected. Proceeding with push.${NC}"
