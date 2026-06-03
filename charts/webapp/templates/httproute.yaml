@@ -1,0 +1,20 @@
+{{- if .Values.httproute.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ include "webapp.fullname" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "webapp.labels" . | nindent 4 }}
+spec:
+  parentRefs:
+    - name: {{ .Values.httproute.gateway.name }}
+      namespace: {{ .Values.httproute.gateway.namespace }}
+      sectionName: {{ .Values.httproute.gateway.section }}
+  hostnames:
+    - {{ .Values.httproute.hostname | quote }}
+  rules:
+    - backendRefs:
+        - name: {{ include "webapp.fullname" . }}
+          port: {{ .Values.service.targetPort }}
+{{- end }}

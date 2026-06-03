@@ -21,7 +21,7 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: crawler
-              image: ghcr.io/qitpydev/vvn-ce-crawler:latest
+              image: ghcr.io/quniv/vvn-ce/crawler:latest
               imagePullPolicy: Always
               env:
                 - name: CRAWLER_DB_URL
