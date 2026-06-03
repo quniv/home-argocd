@@ -1,16 +1,17 @@
+---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: vvn-ce-postgresql
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-wave: '2'
 spec:
   project: default
   source:
     chart: postgresql
     repoURL: https://charts.bitnami.com/bitnami
-    targetRevision: ">=16.0.0 <17.0.0"
+    targetRevision: '>=16.0.0 <17.0.0'
     helm:
       releaseName: postgresql
       values: |
@@ -38,5 +39,4 @@ spec:
     automated:
       prune: true
       selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+    syncOptions: [CreateNamespace=true]

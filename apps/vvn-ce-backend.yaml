@@ -1,10 +1,11 @@
+---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: vvn-ce-backend
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-wave: '2'
 spec:
   project: default
   source:
@@ -13,8 +14,7 @@ spec:
     path: charts/webapp
     helm:
       releaseName: vvn-backend
-      valueFiles:
-        - values/vvn-ce.yaml
+      valueFiles: [values/vvn-ce.yaml]
   destination:
     server: https://kubernetes.default.svc
     namespace: vvn
@@ -22,5 +22,4 @@ spec:
     automated:
       prune: true
       selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+    syncOptions: [CreateNamespace=true]
