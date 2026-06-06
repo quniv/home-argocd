@@ -20,12 +20,16 @@ spec:
       labels:
         {{- include "webapp.selectorLabels" . | nindent 8 }}
     spec:
+      securityContext:
+        {{- toYaml .Values.securityContext.pod | nindent 8 }}
       {{- if .Values.migration.enabled }}
       initContainers:
         - name: migrate
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           workingDir: {{ .Values.migration.workingDir }}
+          securityContext:
+            {{- toYaml .Values.securityContext.container | nindent 12 }}
           command:
             - /bin/sh
             - -c
@@ -50,6 +54,8 @@ spec:
         - name: {{ include "webapp.name" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext.container | nindent 12 }}
           ports:
             - name: http
               containerPort: {{ .Values.service.targetPort }}

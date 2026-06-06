@@ -54,6 +54,17 @@ resources:
     cpu: "500m"
     memory: "512Mi"
 
+securityContext:
+  pod:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  container:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: ["ALL"]
+    readOnlyRootFilesystem: true
+
 # envFrom: list of configMapRef or secretRef entries mounted as env vars.
 envFrom: []
 
