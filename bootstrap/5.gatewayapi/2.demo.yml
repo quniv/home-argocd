@@ -91,7 +91,7 @@ spec:
   parentRefs:
     - name: external
       namespace: infra
-  hostnames: ['nginx-demo.chillpickle.org']
+  hostnames: [nginx-demo.chillpickle.org]
   rules:
     - matches:
         - path:
