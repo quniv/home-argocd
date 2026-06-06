@@ -77,8 +77,12 @@ jobs:
       - name: Install kubeconform
         # Fetches the latest release binary directly from GitHub; no
         # third-party action required and no pinned version to keep stale.
+        # GITHUB_TOKEN authenticates the releases API to avoid rate-limit failures.
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          KUBECONFORM_VERSION=$(curl -s https://api.github.com/repos/yannh/kubeconform/releases/latest \
+          KUBECONFORM_VERSION=$(curl -s -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/yannh/kubeconform/releases/latest \
             | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
           curl -sSL "https://github.com/yannh/kubeconform/releases/download/v${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz" \
             | tar -xz kubeconform
