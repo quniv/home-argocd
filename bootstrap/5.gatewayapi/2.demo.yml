@@ -19,11 +19,45 @@ spec:
       labels:
         app: nginx
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        runAsGroup: 101
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: nginx
-          image: nginx
+          image: nginxinc/nginx-unprivileged:1.27-alpine
           ports:
-            - containerPort: 80
+            - containerPort: 8080
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+          resources:
+            requests:
+              memory: '32Mi'
+              cpu: '10m'
+            limits:
+              memory: '64Mi'
+              cpu: '100m'
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /var/cache/nginx
+              name: nginx-cache
+            - mountPath: /var/run
+              name: nginx-run
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: nginx-cache
+          emptyDir: {}
+        - name: nginx-run
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
@@ -35,10 +69,10 @@ spec:
     app: nginx
   ports:
     - port: 80
-      targetPort: 80
+      targetPort: 8080
 
 ---
-apiVersion: gateway.networking.k8s.io/v1beta1
+apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: nginx
@@ -57,4 +91,3 @@ spec:
       backendRefs:
         - name: nginx
           port: 80
-
