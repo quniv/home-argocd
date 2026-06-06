@@ -85,7 +85,8 @@ jobs:
         if: >-
           github.event_name == 'pull_request' &&
           steps.fix-pr.outputs.pull-request-operation != 'none' &&
-          steps.fix-pr.outputs.pull-request-operation != ''
+          steps.fix-pr.outputs.pull-request-operation != '' &&
+          steps.fix-pr.outputs.pull-request-operation != 'closed'
         run: |
           echo "::error::YAML style issues found. Merge the auto-fix PR to unblock: ${{ steps.fix-pr.outputs.pull-request-url }}"
           exit 1
