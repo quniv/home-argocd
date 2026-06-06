@@ -1,0 +1,7 @@
+apiVersion: v2
+name: webapp
+description: >
+  Generic stateless web service: Deployment + Service + optional HTTPRoute,
+  ConfigMap, and ExternalSecret. Init container support for DB migrations.
+type: application
+version: 0.1.0

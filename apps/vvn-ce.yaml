@@ -16,7 +16,7 @@ spec:
       recurse: true
   destination:
     server: https://kubernetes.default.svc
-    namespace: vvn
+    namespace: vvn-ce
   syncPolicy:
     automated:
       prune: true

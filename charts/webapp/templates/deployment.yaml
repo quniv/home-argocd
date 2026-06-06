@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "webapp.fullname" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "webapp.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicas }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: {{ .Values.strategy.maxUnavailable }}
+      maxSurge: {{ .Values.strategy.maxSurge }}
+  selector:
+    matchLabels:
+      {{- include "webapp.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "webapp.selectorLabels" . | nindent 8 }}
+    spec:
+      securityContext:
+        {{- toYaml .Values.securityContext.pod | nindent 8 }}
+      {{- if .Values.migration.enabled }}
+      initContainers:
+        - name: migrate
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          workingDir: {{ .Values.migration.workingDir }}
+          securityContext:
+            {{- toYaml .Values.securityContext.container | nindent 12 }}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              for i in $(seq 1 {{ .Values.migration.retries }}); do
+                echo "Attempt $i/{{ .Values.migration.retries }}..."
+                {{ .Values.migration.command }} && echo "Migrations done." && exit 0
+                echo "Not ready, sleeping {{ .Values.migration.retryDelay }}s..."
+                sleep {{ .Values.migration.retryDelay }}
+              done
+              echo "ERROR: migration failed after {{ .Values.migration.retries }} attempts." >&2
+              exit 1
+          {{- if .Values.envFrom }}
+          envFrom:
+            {{- toYaml .Values.envFrom | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.migration.resources | nindent 12 }}
+      {{- end }}
+      containers:
+        - name: {{ include "webapp.name" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext.container | nindent 12 }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.targetPort }}
+          {{- if .Values.envFrom }}
+          envFrom:
+            {{- toYaml .Values.envFrom | nindent 12 }}
+          {{- end }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.probes.readiness.httpPath }}
+              port: {{ .Values.probes.readiness.port }}
+            initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
+            failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.probes.liveness.port }}
+            initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
+            failureThreshold: {{ .Values.probes.liveness.failureThreshold }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
