@@ -8,8 +8,7 @@ misconfigurations:
   - id: KSV-0013
     paths:
       - charts/webapp/templates/deployment.yaml
-      - bootstrap/3.ddns/deployment.yml
-    statement: "Helm chart placeholder / upstream image; production values or image updates address this"
+    statement: "Helm chart placeholder default; production values pin specific image tags"
 
   # Default namespace is "default" — a placeholder; every app values file sets its own.
   - id: KSV-0110
