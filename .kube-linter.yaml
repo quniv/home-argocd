@@ -1,24 +1,12 @@
 ---
-# kube-linter configuration for home-argocd GitOps repo (home lab).
-# All checks are enabled by default; the list below explicitly ignores
-# checks that are impractical or intentionally noisy for a single-node
-# home-lab workload running stateful services.
+# kube-linter configuration for home-argocd GitOps repo.
+# All built-in checks are enabled. Only sorted-keys is excluded — it enforces
+# alphabetical YAML key ordering which conflicts with conventional Kubernetes
+# field order (apiVersion/kind/metadata/spec) and is a style preference, not
+# a security or reliability rule.
 checks:
-  # Start from all available checks rather than the default subset.
   addAllBuiltIn: true
   exclude:
-    # Stateful workloads (PostgreSQL) and sidecar containers legitimately
-    # need a writable root filesystem; enforcing read-only would break them.
-    - no-read-only-root-fs
-
-    # Single-replica is intentional for a home lab; HA is out of scope.
-    - minimum-three-replicas
-
-    # Anti-affinity rules are meaningless on a 3-node hobby cluster where
-    # spreading a single replica provides no real benefit.
-    - no-anti-affinity
-
-    # Alphabetical key ordering is a stylistic preference that conflicts with
-    # conventional Kubernetes YAML ordering (apiVersion/kind/metadata/spec).
-    # Enforcing it produces non-idiomatic YAML (e.g. data before kind).
+    # Alphabetical key ordering conflicts with conventional Kubernetes YAML
+    # ordering (e.g. it would require data before kind in a ConfigMap).
     - sorted-keys
