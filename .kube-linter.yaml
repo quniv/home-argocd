@@ -30,3 +30,8 @@ checks:
     # SecurityContext is intentionally omitted on several workloads pending
     # a dedicated hardening pass; suppress until that work is done.
     - non-isolated-pod
+
+    # Alphabetical key ordering is a stylistic preference that conflicts with
+    # conventional Kubernetes YAML ordering (apiVersion/kind/metadata/spec).
+    # Enforcing it produces non-idiomatic YAML (e.g. data before kind).
+    - sorted-keys

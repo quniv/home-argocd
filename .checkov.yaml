@@ -1,0 +1,8 @@
+---
+# Checkov configuration for home-argocd GitOps repo.
+#
+# bootstrap/ is excluded for the same reason the lint workflow excludes it:
+# one-time cluster-setup files that are never managed by ArgoCD and carry
+# intentional style deviations (no securityContext, latest image tags, etc.).
+skip-path:
+  - bootstrap/

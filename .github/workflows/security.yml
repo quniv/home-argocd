@@ -43,6 +43,8 @@ jobs:
 
       - name: Run Trivy config scan
         # Scans the entire repository for IaC misconfigurations.
+        # bootstrap/ is excluded: it contains one-time cluster-setup files
+        # that are never managed by ArgoCD and have known style deviations.
         # continue-on-error ensures the SARIF upload step always runs
         # even when Trivy finds issues (exit code 1).
         uses: aquasecurity/trivy-action@master
@@ -53,6 +55,7 @@ jobs:
           output: trivy-results.sarif
           # Suppress informational output that clutters the job log
           severity: MEDIUM,HIGH,CRITICAL
+          skip-dirs: bootstrap
         continue-on-error: true
 
       - name: Upload Trivy SARIF results to GitHub Security tab

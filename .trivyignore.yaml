@@ -1,0 +1,27 @@
+misconfigurations:
+  # charts/webapp/templates/deployment.yaml is a Helm template evaluated with
+  # placeholder defaults. All production deployments override these via values
+  # files (e.g. values/vvn-ce.yaml pins a specific image tag and namespace).
+
+  # Default image.tag is "latest" — a placeholder; production values pin tags.
+  - id: KSV-0013
+    paths:
+      - charts/webapp/templates/deployment.yaml
+    statement: "Helm chart placeholder default; production values pin specific image tags"
+
+  # Default namespace is "default" — a placeholder; every app values file sets its own.
+  - id: KSV-0110
+    paths:
+      - charts/webapp/templates/deployment.yaml
+    statement: "Helm chart placeholder default; production values always specify a namespace"
+
+  # No explicit runAsUser/runAsGroup in chart defaults; apps supply their own via values.
+  - id: KSV-0020
+    paths:
+      - charts/webapp/templates/deployment.yaml
+    statement: "Helm chart template; production workloads run as non-root via runAsNonRoot"
+
+  - id: KSV-0021
+    paths:
+      - charts/webapp/templates/deployment.yaml
+    statement: "Helm chart template; GID is controlled at the container image level"
