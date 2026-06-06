@@ -1,45 +1,16 @@
 misconfigurations:
-  # ── charts/webapp/templates/deployment.yaml ──────────────────────────────
-  # This is a Helm template evaluated with placeholder defaults. All production
-  # deployments override these via values files (e.g. values/vvn-ce.yaml pins
-  # a specific image tag and namespace).
-
-  # Default image.tag is "latest" — a placeholder; production values pin tags.
+  # Helm chart template renders ":latest" when Trivy evaluates it with the
+  # placeholder default (image.repository="" + image.tag="latest"). All
+  # production deployments pin a specific tag via their values files.
   - id: KSV-0013
     paths:
       - charts/webapp/templates/deployment.yaml
     statement: "Helm chart placeholder default; production values pin specific image tags"
 
-  # Default namespace is "default" — a placeholder; every app values file sets its own.
-  - id: KSV-0110
-    paths:
-      - charts/webapp/templates/deployment.yaml
-    statement: "Helm chart placeholder default; production values always specify a namespace"
-
-  # No explicit runAsUser/runAsGroup in chart defaults; apps supply their own via values.
-  - id: KSV-0020
-    paths:
-      - charts/webapp/templates/deployment.yaml
-    statement: "Helm chart template; production workloads run as non-root via runAsNonRoot"
-
-  - id: KSV-0021
-    paths:
-      - charts/webapp/templates/deployment.yaml
-    statement: "Helm chart template; GID is controlled at the container image level"
-
-  # ── bootstrap/3.ddns/deployment.yml ──────────────────────────────────────
-  # timothyjmiller/cloudflare-ddns is a third-party image built FROM
-  # python:3-alpine with no USER instruction — it runs as root. Fixing this
-  # requires rebuilding or replacing the upstream image, which is out of scope.
-
+  # timothyjmiller/cloudflare-ddns is built FROM python:3-alpine with no USER
+  # instruction — the process runs as root. Fixing this requires rebuilding or
+  # replacing the upstream image, which is out of scope.
   - id: KSV-0012
     paths:
       - bootstrap/3.ddns/deployment.yml
     statement: "Upstream image runs as root; rebuilding with a non-root USER is out of scope"
-
-  # Image digest pinning (in addition to tag) is impractical for a home-lab
-  # DDNS updater where following upstream releases is the intended behaviour.
-  - id: KSV-0125
-    paths:
-      - bootstrap/3.ddns/deployment.yml
-    statement: "Digest pinning not required for home-lab DDNS bootstrap"
