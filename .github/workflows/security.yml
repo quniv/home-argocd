@@ -55,9 +55,6 @@ jobs:
           output: trivy-results.sarif
           # Suppress informational output that clutters the job log
           severity: MEDIUM,HIGH,CRITICAL
-          # Skip only the Gateway API demo manifest — it is a throwaway test
-          # fixture (placeholder [DOMAIN], bare nginx) never deployed to prod.
-          skip-files: bootstrap/5.gatewayapi/2.demo.yml
         continue-on-error: true
 
       - name: Upload Trivy SARIF results to GitHub Security tab

@@ -1,8 +1,3 @@
 ---
 # Checkov configuration for home-argocd GitOps repo.
-#
-# Only the Gateway API demo manifest is excluded — it is a throwaway test
-# fixture (placeholder [DOMAIN], bare nginx image, no securityContext) that
-# is never deployed to production and is intentionally minimal.
-skip-path:
-  - bootstrap/5.gatewayapi/2.demo.yml
+# No paths are skipped — all manifests are scanned.
