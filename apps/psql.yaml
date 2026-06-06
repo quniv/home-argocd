@@ -14,6 +14,12 @@ spec:
     targetRevision: 18.7.2
     helm:
       releaseName: psql
+      values: |
+        auth:
+          # Secret managed by ESO — see manifests/psql/admin-externalsecret.yaml
+          existingSecret: psql-admin-credentials
+          secretKeys:
+            adminPasswordKey: postgres-password
   destination:
     server: https://kubernetes.default.svc
     namespace: psql
