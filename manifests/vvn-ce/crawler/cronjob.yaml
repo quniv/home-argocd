@@ -5,9 +5,9 @@
 #   name: vdict-crawler
 #   namespace: vvn
 # spec:
-#   # Weekly, Sunday at 02:00 UTC — picks up new words vdict.com adds over time.
-#   # For the initial bulk crawl, run a one-shot Job manually:
-#   #   kubectl create job -n vvn vdict-crawler-init --from=cronjob/vdict-crawler
+#  # Weekly, Sunday at 02:00 UTC — picks up new words vdict.com adds over time.
+#  # For the initial bulk crawl, run a one-shot Job manually:
+#  #   kubectl create job -n vvn vdict-crawler-init --from=cronjob/vdict-crawler
 #   schedule: 0 2 * * 0
 #   concurrencyPolicy: Forbid
 #   successfulJobsHistoryLimit: 3
