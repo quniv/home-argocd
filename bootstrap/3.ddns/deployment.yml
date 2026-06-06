@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -7,28 +8,55 @@ spec:
   selector:
     matchLabels:
       app: cloudflare-ddns
-
   template:
     metadata:
       labels:
         app: cloudflare-ddns
-
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000  # checkov:skip=CKV_K8S_40:Image runs as root by default; 1000 is our chosen non-root UID, not image-defined
+        runAsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: cloudflare-ddns
-          image: timothyjmiller/cloudflare-ddns:latest
+          image: timothyjmiller/cloudflare-ddns:2.1.2@sha256:37c99677e997710c1bbe9d74c93f2e3b8de3457a5ca6e28643e251b38ed05311
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+            readOnlyRootFilesystem: true
           resources:
+            requests:
+              memory: 32Mi
+              cpu: 10m
             limits:
-              memory: '32Mi'
-              cpu: '50m'
+              memory: 32Mi
+              cpu: 50m
+          livenessProbe:
+            exec:
+              command: [/bin/sh, -c, kill -0 1]
+            initialDelaySeconds: 30
+            periodSeconds: 60
+          readinessProbe:
+            exec:
+              command: [/bin/sh, -c, kill -0 1]
+            initialDelaySeconds: 10
+            periodSeconds: 30
           env:
             - name: CONFIG_PATH
-              value: '/etc/cloudflare-ddns/'
+              value: /etc/cloudflare-ddns/
           volumeMounts:
-            - mountPath: '/etc/cloudflare-ddns'
+            - mountPath: /etc/cloudflare-ddns
               name: config-cloudflare-ddns
               readOnly: true
+            - mountPath: /tmp
+              name: tmp
       volumes:
         - name: config-cloudflare-ddns
           secret:
             secretName: config-cloudflare-ddns
+        - name: tmp
+          emptyDir: {}

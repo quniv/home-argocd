@@ -1,0 +1,17 @@
+misconfigurations:
+  # Helm chart template renders ":latest" when Trivy evaluates the template
+  # file with its placeholder defaults (image.repository="" tag="latest").
+  # Path-scoped suppression does not work for Helm-type targets in Trivy;
+  # this is safe to suppress globally because every production values file
+  # (charts/webapp/values/*.yaml) pins an explicit image tag.
+  - id: KSV-0013
+    statement: "Helm template placeholder default; all production values files pin explicit image tags"
+  # Both bootstrap images are official, well-maintained images from their
+  # respective publishers on Docker Hub. Neither is available on a registry
+  # Trivy considers "trusted" (gcr.io, ghcr.io, etc.) and neither can be
+  # substituted with a different image.
+  - id: KSV-0125
+    paths:
+      - bootstrap/3.ddns/deployment.yml
+      - bootstrap/5.gatewayapi/2.demo.yml
+    statement: "Official images (timothyjmiller/cloudflare-ddns, nginxinc/nginx-unprivileged) have no trusted-registry alternative"

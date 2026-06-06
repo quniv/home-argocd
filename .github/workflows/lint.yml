@@ -3,15 +3,17 @@
 #
 # Jobs:
 #   yamllint        — checks syntax/style of manifests/ and apps/ against
-#                     .yamllint.yml; on PRs, auto-fixes with yamlfix and
-#                     commits the result back to the branch.
+#                     .yamllint.yml; on PRs, runs yamlfix first and if any
+#                     files were changed, opens an auto-fix PR targeting the
+#                     feature branch (merge it to unblock CI on the original PR).
 #   kubeconform     — validates manifests against the Kubernetes 1.28 schema;
 #                     unknown CRD kinds (ArgoCD, Gateway API, ESO, Cilium) are
 #                     resolved via the CRDs-catalog; anything still unknown is
 #                     skipped with --ignore-missing-schemas rather than failing.
 #
-# bootstrap/ is intentionally excluded: it contains one-time setup files
-# with known style deviations that are not actively managed.
+# bootstrap/ and charts/webapp/values/ are linted alongside manifests/ and apps/.
+# charts/webapp/templates/ is excluded from yamllint (Helm Go templates are not
+# valid YAML) and from kubeconform (templates are not rendered k8s manifests).
 name: Lint
 
 on:
@@ -22,49 +24,77 @@ on:
     branches:
       - main
 
+# Deny all permissions by default; each job grants only what it needs.
+permissions: read-all
+
 jobs:
   yamllint:
     name: YAML lint
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
-          # Fetch the actual branch ref so auto-commit can push back;
-          # pull_request events check out a merge commit by default.
+          # Fetch the actual branch ref so auto-fix branch can be created
+          # from the correct base; pull_request events check out a merge
+          # commit by default.
           ref: ${{ github.head_ref || github.ref }}
 
       - name: Install yamllint and yamlfix
         run: pip install yamllint yamlfix
 
       - name: Auto-fix YAML style issues (PRs only)
-        # yamlfix applies the same rules yamllint enforces — trailing spaces,
-        # indentation, missing newline at EOF. Runs before the lint check so
-        # fixable issues never fail the build.
+        # Runs yamlfix in the workspace so that:
+        #   1. The fix PR is created with the correct diff.
+        #   2. The yamllint step below runs on the fixed files and passes.
         if: github.event_name == 'pull_request'
-        run: yamlfix manifests/ apps/
+        run: yamlfix manifests/ apps/ bootstrap/ charts/webapp/values/
 
-      - name: Commit auto-fixed files (PRs only)
-        # Stages manifests/ and apps/ then commits only if yamlfix made changes.
-        # Uses manual git commands to avoid glob-expansion issues with actions.
+      - name: Open fix PR if YAML was changed (PRs only)
+        # If yamlfix modified any files, create-pull-request opens a new PR
+        # targeting the feature branch. The developer merges it; that merge
+        # triggers a new CI run on the feature branch which then passes.
+        # If no files changed, pull-request-operation == 'none' and the step
+        # is a no-op.
+        id: fix-pr
         if: github.event_name == 'pull_request'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: "style: auto-fix YAML style issues via yamlfix"
+          title: "style: fix YAML style in ${{ github.head_ref }}"
+          body: |
+            YAML style issues were detected in #${{ github.event.pull_request.number }}.
+
+            Merge this PR into `${{ github.head_ref }}` to unblock CI on the original PR.
+          branch: auto-fix/yamlfix-${{ github.head_ref }}
+          base: ${{ github.head_ref }}
+          delete-branch: true
+
+      - name: Run yamllint
+        # .yamllint.yml ignores charts/webapp/templates (Helm Go templates).
+        # On PRs this runs on the yamlfix-fixed working copy, so it passes
+        # even when the original commit had style issues.
+        run: yamllint -c .yamllint.yml manifests/ apps/ bootstrap/ charts/
+
+      - name: Fail if auto-fix PR was opened (PRs only)
+        # Keeps CI red on the original PR until the developer merges the fix
+        # PR. Once merged, a new CI run fires on the feature branch and passes.
+        if: >-
+          github.event_name == 'pull_request' &&
+          steps.fix-pr.outputs.pull-request-operation != 'none' &&
+          steps.fix-pr.outputs.pull-request-operation != ''
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add manifests/ apps/
-          git diff --staged --quiet || git commit -m "style: auto-fix YAML style issues via yamlfix"
-          git push
-
-      - name: Run yamllint on manifests and apps
-        # Scopes to manifests/ and apps/ only — these are the paths ArgoCD
-        # syncs and must remain valid. bootstrap/ has intentional deviations.
-        run: yamllint -c .yamllint.yml manifests/ apps/
+          echo "::error::YAML style issues found. Merge the auto-fix PR to unblock: ${{ steps.fix-pr.outputs.pull-request-url }}"
+          exit 1
 
   kubeconform:
     name: Kubeconform manifest validation
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -72,8 +102,12 @@ jobs:
       - name: Install kubeconform
         # Fetches the latest release binary directly from GitHub; no
         # third-party action required and no pinned version to keep stale.
+        # GITHUB_TOKEN authenticates the releases API to avoid rate-limit failures.
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          KUBECONFORM_VERSION=$(curl -s https://api.github.com/repos/yannh/kubeconform/releases/latest \
+          KUBECONFORM_VERSION=$(curl -s -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/yannh/kubeconform/releases/latest \
             | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
           curl -sSL "https://github.com/yannh/kubeconform/releases/download/v${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz" \
             | tar -xz kubeconform
@@ -81,18 +115,17 @@ jobs:
           kubeconform -v
 
       - name: Validate Kubernetes manifests
-        # Schema resolution order:
-        #   1. Built-in k8s 1.28 schema (default)
-        #   2. CRDs-catalog — covers ArgoCD (argoproj.io), Gateway API
-        #      (gateway.networking.k8s.io), External Secrets Operator
-        #      (external-secrets.io), and cert-manager (cert-manager.io)
-        #   3. --ignore-missing-schemas — Cilium and Infisical-specific CRDs
-        #      not in the catalog are skipped rather than failing the build.
+        # bootstrap/ is included — it contains real k8s resources.
+        # charts/ is excluded — Helm templates are not rendered k8s manifests.
+        # Helm values files (values.ya?ml) and JSON config files are excluded
+        # because they are not k8s manifests and have no 'kind' key.
         run: |
           kubeconform \
             -ignore-missing-schemas \
-            -kubernetes-version 1.28.0 \
+            -kubernetes-version 1.36.0 \
             -schema-location default \
             -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
+            -ignore-filename-pattern 'values\.ya?ml$' \
+            -ignore-filename-pattern '\.json$' \
             -summary \
-            manifests/ apps/
+            manifests/ apps/ bootstrap/

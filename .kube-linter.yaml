@@ -1,32 +1,12 @@
 ---
-# kube-linter configuration for home-argocd GitOps repo (home lab).
-# All checks are enabled by default; the list below explicitly ignores
-# checks that are impractical or intentionally noisy for a single-node
-# home-lab workload running stateful services.
+# kube-linter configuration for home-argocd GitOps repo.
+# All built-in checks are enabled. Only sorted-keys is excluded — it enforces
+# alphabetical YAML key ordering which conflicts with conventional Kubernetes
+# field order (apiVersion/kind/metadata/spec) and is a style preference, not
+# a security or reliability rule.
 checks:
-  # Start from all available checks rather than the default subset.
   addAllBuiltIn: true
   exclude:
-    # Stateful workloads (PostgreSQL) and sidecar containers legitimately
-    # need a writable root filesystem; enforcing read-only would break them.
-    - no-read-only-root-fs
-
-    # All images use :latest because this is a personal lab synced by ArgoCD
-    # with image-updater. Treating this as an error creates constant noise.
-    - latest-tag
-
-    # Single-replica is intentional for a home lab; HA is out of scope.
-    - minimum-three-replicas
-
-    # Anti-affinity rules are meaningless on a 3-node hobby cluster where
-    # spreading a single replica provides no real benefit.
-    - no-anti-affinity
-
-    # The vvn-backend init container runs Alembic migrations as root before
-    # the main container starts. Forcing a non-root UID would break the
-    # migration pattern and requires rebuilding the upstream image.
-    - run-as-non-root
-
-    # SecurityContext is intentionally omitted on several workloads pending
-    # a dedicated hardening pass; suppress until that work is done.
-    - non-isolated-pod
+    # Alphabetical key ordering conflicts with conventional Kubernetes YAML
+    # ordering (e.g. it would require data before kind in a ConfigMap).
+    - sorted-keys

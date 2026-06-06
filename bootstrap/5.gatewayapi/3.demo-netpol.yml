@@ -1,0 +1,17 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: nginx-demo
+  namespace: demo
+spec:
+  podSelector:
+    matchLabels:
+      app: nginx
+  policyTypes: [Ingress, Egress]
+  ingress:
+    # Traffic forwarded by the Cilium Gateway from the infra namespace
+    - ports:
+        - port: 8080
+          protocol: TCP
+  egress: []
