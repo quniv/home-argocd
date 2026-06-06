@@ -7,6 +7,9 @@ metadata:
   annotations:
     argocd.argoproj.io/hook: PostSync
     argocd.argoproj.io/hook-delete-policy: HookSucceeded
+    # Secrets must be injected as env vars — psql CLI reads PGPASSWORD and DB_*
+    # from the environment; file-based injection would require a wrapper script.
+    checkov.io/skip1: "CKV_K8S_35=env vars required by psql CLI (PGPASSWORD, DB_USER etc.)"
 spec:
   template:
     spec:
@@ -15,7 +18,7 @@ spec:
         - name: init
           image: postgres:17-alpine@sha256:979c4379dd698aba0b890599a6104e082035f98ef31d9b9291ec22f2b13059ca
           imagePullPolicy: IfNotPresent
-          env:  # checkov:skip=CKV_K8S_35:Secrets injected via secretKeyRef — standard k8s pattern for short-lived init Jobs
+          env:
             - name: PGPASSWORD
               valueFrom:
                 secretKeyRef:
@@ -79,7 +82,7 @@ spec:
               drop: [ALL]
             readOnlyRootFilesystem: true
             runAsNonRoot: true
-            runAsUser: 999
+            runAsUser: 65532
       securityContext:
         seccompProfile:
           type: RuntimeDefault
