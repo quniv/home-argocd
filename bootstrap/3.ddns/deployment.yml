@@ -3,12 +3,6 @@ kind: Deployment
 metadata:
   name: cloudflare-ddns
   namespace: cloudflare-ddns
-  annotations:
-    # timothyjmiller/cloudflare-ddns is built FROM python:3-alpine with no
-    # USER instruction — the process runs as root. Enforcing runAsNonRoot here
-    # would prevent the container from starting without rebuilding the image.
-    checkov.io/skip1: "CKV_K8S_20=upstream image (timothyjmiller/cloudflare-ddns) runs as root; rebuilding is out of scope"
-    checkov.io/skip2: "CKV_K8S_40=upstream image runs as root; UID cannot be overridden without a new image"
 spec:
   selector:
     matchLabels:
@@ -20,6 +14,9 @@ spec:
     spec:
       automountServiceAccountToken: false
       securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
         seccompProfile:
           type: RuntimeDefault
       containers:

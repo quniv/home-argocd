@@ -6,11 +6,3 @@ misconfigurations:
     paths:
       - charts/webapp/templates/deployment.yaml
     statement: "Helm chart placeholder default; production values pin specific image tags"
-
-  # timothyjmiller/cloudflare-ddns is built FROM python:3-alpine with no USER
-  # instruction — the process runs as root. Fixing this requires rebuilding or
-  # replacing the upstream image, which is out of scope.
-  - id: KSV-0012
-    paths:
-      - bootstrap/3.ddns/deployment.yml
-    statement: "Upstream image runs as root; rebuilding with a non-root USER is out of scope"
