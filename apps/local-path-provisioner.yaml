@@ -9,9 +9,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/rancher/local-path-provisioner.git
-    targetRevision: v0.0.36
-    path: deploy/chart/local-path-provisioner
+    chart: local-path-provisioner
+    repoURL: https://charts.containeroo.ch
+    targetRevision: 0.0.37
     helm:
       releaseName: local-path-provisioner
       values: |
