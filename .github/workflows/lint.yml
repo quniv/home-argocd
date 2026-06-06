@@ -3,8 +3,9 @@
 #
 # Jobs:
 #   yamllint        — checks syntax/style of manifests/ and apps/ against
-#                     .yamllint.yml; on PRs, auto-fixes with yamlfix and
-#                     commits the result back to the branch.
+#                     .yamllint.yml; on PRs, runs yamlfix first and if any
+#                     files were changed, opens an auto-fix PR targeting the
+#                     feature branch (merge it to unblock CI on the original PR).
 #   kubeconform     — validates manifests against the Kubernetes 1.28 schema;
 #                     unknown CRD kinds (ArgoCD, Gateway API, ESO, Cilium) are
 #                     resolved via the CRDs-catalog; anything still unknown is
@@ -32,40 +33,62 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
-          # Fetch the actual branch ref so auto-commit can push back;
-          # pull_request events check out a merge commit by default.
+          # Fetch the actual branch ref so auto-fix branch can be created
+          # from the correct base; pull_request events check out a merge
+          # commit by default.
           ref: ${{ github.head_ref || github.ref }}
 
       - name: Install yamllint and yamlfix
         run: pip install yamllint yamlfix
 
       - name: Auto-fix YAML style issues (PRs only)
-        # yamlfix applies the same rules yamllint enforces — trailing spaces,
-        # indentation, missing newline at EOF. Runs before the lint check so
-        # fixable issues never fail the build.
+        # Runs yamlfix in the workspace so that:
+        #   1. The fix PR is created with the correct diff.
+        #   2. The yamllint step below runs on the fixed files and passes.
         if: github.event_name == 'pull_request'
         run: yamlfix manifests/ apps/ bootstrap/ charts/webapp/values/
 
-      - name: Commit auto-fixed files (PRs only)
-        # Stages all linted paths then commits only if yamlfix made changes.
-        # Uses manual git commands to avoid glob-expansion issues with actions.
+      - name: Open fix PR if YAML was changed (PRs only)
+        # If yamlfix modified any files, create-pull-request opens a new PR
+        # targeting the feature branch. The developer merges it; that merge
+        # triggers a new CI run on the feature branch which then passes.
+        # If no files changed, pull-request-operation == 'none' and the step
+        # is a no-op.
+        id: fix-pr
         if: github.event_name == 'pull_request'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add manifests/ apps/ bootstrap/ charts/webapp/values/
-          git diff --staged --quiet || git commit -m "style: auto-fix YAML style issues via yamlfix"
-          git push
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: "style: auto-fix YAML style issues via yamlfix"
+          title: "style: fix YAML style in ${{ github.head_ref }}"
+          body: |
+            YAML style issues were detected in #${{ github.event.pull_request.number }}.
+
+            Merge this PR into `${{ github.head_ref }}` to unblock CI on the original PR.
+          branch: auto-fix/yamlfix-${{ github.head_ref }}
+          base: ${{ github.head_ref }}
+          delete-branch: true
 
       - name: Run yamllint
         # .yamllint.yml ignores charts/webapp/templates (Helm Go templates).
-        # All other YAML in the repo is linted — manifests, apps, bootstrap,
-        # and the chart values files.
+        # On PRs this runs on the yamlfix-fixed working copy, so it passes
+        # even when the original commit had style issues.
         run: yamllint -c .yamllint.yml manifests/ apps/ bootstrap/ charts/
+
+      - name: Fail if auto-fix PR was opened (PRs only)
+        # Keeps CI red on the original PR until the developer merges the fix
+        # PR. Once merged, a new CI run fires on the feature branch and passes.
+        if: >-
+          github.event_name == 'pull_request' &&
+          steps.fix-pr.outputs.pull-request-operation != 'none' &&
+          steps.fix-pr.outputs.pull-request-operation != ''
+        run: |
+          echo "::error::YAML style issues found. Merge the auto-fix PR to unblock: ${{ steps.fix-pr.outputs.pull-request-url }}"
+          exit 1
 
   kubeconform:
     name: Kubeconform manifest validation
