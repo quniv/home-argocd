@@ -39,7 +39,7 @@ httproute:
 
 externalsecret:
   enabled: true
-  targetSecret: vvn-backend-secrets
+  targetSecret: vvn-backend-secrets  # checkov:skip=CKV_SECRET_6:False positive - K8s secret name, not a secret value
   data:
     - secretKey: DATABASE_URL
       remoteRef:
