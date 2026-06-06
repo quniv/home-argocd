@@ -6,4 +6,4 @@ metadata:
   namespace: argocd
 data:
   # TLS is terminated by the Cilium Gateway — ArgoCD runs plain HTTP internally.
-  server.insecure: 'true'
+  server.insecure: "true"

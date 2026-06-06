@@ -1,46 +1,46 @@
----
-apiVersion: batch/v1
-kind: CronJob
-metadata:
-  name: vdict-crawler
-  namespace: vvn
-spec:
-  # Weekly, Sunday at 02:00 UTC — picks up new words vdict.com adds over time.
-  # For the initial bulk crawl, run a one-shot Job manually:
-  #   kubectl create job -n vvn vdict-crawler-init --from=cronjob/vdict-crawler
-  schedule: 0 2 * * 0
-  concurrencyPolicy: Forbid
-  successfulJobsHistoryLimit: 3
-  failedJobsHistoryLimit: 3
-  jobTemplate:
-    spec:
-      backoffLimit: 2
-      activeDeadlineSeconds: 14400
-      template:
-        spec:
-          restartPolicy: OnFailure
-          containers:
-            - name: crawler
-              image: ghcr.io/quniv/vvn-ce/crawler:latest
-              imagePullPolicy: Always
-              env:
-                - name: CRAWLER_DB_URL
-                  valueFrom:
-                    secretKeyRef:
-                      name: vdict-crawler-secret
-                      key: db_url
-                - name: CRAWLER_CONCURRENCY
-                  value: '8'
-                - name: CRAWLER_DELAY_MS
-                  value: '100'
-                - name: CRAWLER_BATCH_SIZE
-                  value: '50'
-                - name: CRAWLER_NO_RAW_HTML
-                  value: 'true'
-              resources:
-                requests:
-                  cpu: 200m
-                  memory: 256Mi
-                limits:
-                  cpu: 500m
-                  memory: 512Mi
+# ---
+# apiVersion: batch/v1
+# kind: CronJob
+# metadata:
+#   name: vdict-crawler
+#   namespace: vvn
+# spec:
+#   # Weekly, Sunday at 02:00 UTC — picks up new words vdict.com adds over time.
+#   # For the initial bulk crawl, run a one-shot Job manually:
+#   #   kubectl create job -n vvn vdict-crawler-init --from=cronjob/vdict-crawler
+#   schedule: 0 2 * * 0
+#   concurrencyPolicy: Forbid
+#   successfulJobsHistoryLimit: 3
+#   failedJobsHistoryLimit: 3
+#   jobTemplate:
+#     spec:
+#       backoffLimit: 2
+#       activeDeadlineSeconds: 14400
+#       template:
+#         spec:
+#           restartPolicy: OnFailure
+#           containers:
+#             - name: crawler
+#               image: ghcr.io/quniv/vvn-ce/crawler:latest
+#               imagePullPolicy: Always
+#               env:
+#                 - name: CRAWLER_DB_URL
+#                   valueFrom:
+#                     secretKeyRef:
+#                       name: vdict-crawler-secret
+#                       key: db_url
+#                 - name: CRAWLER_CONCURRENCY
+#                   value: '8'
+#                 - name: CRAWLER_DELAY_MS
+#                   value: '100'
+#                 - name: CRAWLER_BATCH_SIZE
+#                   value: '50'
+#                 - name: CRAWLER_NO_RAW_HTML
+#                   value: 'true'
+#               resources:
+#                 requests:
+#                   cpu: 200m
+#                   memory: 256Mi
+#                 limits:
+#                   cpu: 500m
+#                   memory: 512Mi
