@@ -43,8 +43,9 @@ jobs:
 
       - name: Run Trivy config scan
         # Scans the entire repository for IaC misconfigurations.
-        # bootstrap/ is excluded: it contains one-time cluster-setup files
-        # that are never managed by ArgoCD and have known style deviations.
+        # .trivyignore.yaml suppresses two categories of genuine false positives:
+        #   KSV-0013 — Helm template placeholder ":latest" (path-scoping unsupported for Helm targets)
+        #   KSV-0125 — bootstrap Docker Hub images with no trusted-registry alternative
         # continue-on-error ensures the SARIF upload step always runs
         # even when Trivy finds issues (exit code 1).
         uses: aquasecurity/trivy-action@master
@@ -53,8 +54,8 @@ jobs:
           scan-ref: .
           format: sarif
           output: trivy-results.sarif
-          # Suppress informational output that clutters the job log
           severity: MEDIUM,HIGH,CRITICAL
+          trivyignores: .trivyignore.yaml
         continue-on-error: true
 
       - name: Upload Trivy SARIF results to GitHub Security tab

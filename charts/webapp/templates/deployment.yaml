@@ -20,6 +20,7 @@ spec:
       labels:
         {{- include "webapp.selectorLabels" . | nindent 8 }}
     spec:
+      automountServiceAccountToken: false
       securityContext:
         {{- toYaml .Values.securityContext.pod | nindent 8 }}
       {{- if .Values.migration.enabled }}

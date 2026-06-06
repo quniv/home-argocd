@@ -22,13 +22,13 @@ spec:
       automountServiceAccountToken: false
       securityContext:
         runAsNonRoot: true
-        runAsUser: 101
+        runAsUser: 101  # checkov:skip=CKV_K8S_40:UID 101 is hardwired in the nginx-unprivileged image (docker inspect confirms User=101); using any other UID breaks nginx file ownership
         runAsGroup: 101
         seccompProfile:
           type: RuntimeDefault
       containers:
         - name: nginx
-          image: nginxinc/nginx-unprivileged:1.27-alpine
+          image: nginxinc/nginx-unprivileged:1.27-alpine@sha256:65e3e85dbaed8ba248841d9d58a899b6197106c23cb0ff1a132b7bfe0547e4c0
           ports:
             - containerPort: 8080
           securityContext:
@@ -37,6 +37,18 @@ spec:
               drop:
                 - ALL
             readOnlyRootFilesystem: true
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 15
           resources:
             requests:
               memory: '32Mi'

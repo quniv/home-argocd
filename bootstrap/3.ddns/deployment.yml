@@ -15,13 +15,13 @@ spec:
       automountServiceAccountToken: false
       securityContext:
         runAsNonRoot: true
-        runAsUser: 1000
+        runAsUser: 1000  # checkov:skip=CKV_K8S_40:Image runs as root by default; 1000 is our chosen non-root UID, not image-defined
         runAsGroup: 1000
         seccompProfile:
           type: RuntimeDefault
       containers:
         - name: cloudflare-ddns
-          image: timothyjmiller/cloudflare-ddns:2.1.2
+          image: timothyjmiller/cloudflare-ddns:2.1.2@sha256:37c99677e997710c1bbe9d74c93f2e3b8de3457a5ca6e28643e251b38ed05311
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
