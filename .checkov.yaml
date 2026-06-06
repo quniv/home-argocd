@@ -1,3 +1,0 @@
----
-# Checkov configuration for home-argocd GitOps repo.
-# No paths are skipped — all manifests are scanned.
