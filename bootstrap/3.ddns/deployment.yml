@@ -3,24 +3,59 @@ kind: Deployment
 metadata:
   name: cloudflare-ddns
   namespace: cloudflare-ddns
+  annotations:
+    # timothyjmiller/cloudflare-ddns is built FROM python:3-alpine with no
+    # USER instruction — the process runs as root. Enforcing runAsNonRoot here
+    # would prevent the container from starting without rebuilding the image.
+    checkov.io/skip1: "CKV_K8S_14=upstream image does not publish versioned tags suitable for pinning"
+    checkov.io/skip2: "CKV_K8S_43=upstream image does not publish versioned tags suitable for pinning"
+    checkov.io/skip3: "CKV_K8S_20=upstream image (timothyjmiller/cloudflare-ddns) runs as root; rebuilding is out of scope"
+    checkov.io/skip4: "CKV_K8S_40=upstream image runs as root; UID cannot be overridden without a new image"
 spec:
   selector:
     matchLabels:
       app: cloudflare-ddns
-
   template:
     metadata:
       labels:
         app: cloudflare-ddns
-
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: cloudflare-ddns
           image: timothyjmiller/cloudflare-ddns:latest
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
           resources:
+            requests:
+              memory: '32Mi'
+              cpu: '10m'
             limits:
               memory: '32Mi'
               cpu: '50m'
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - kill -0 1
+            initialDelaySeconds: 30
+            periodSeconds: 60
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - kill -0 1
+            initialDelaySeconds: 10
+            periodSeconds: 30
           env:
             - name: CONFIG_PATH
               value: '/etc/cloudflare-ddns/'
@@ -28,7 +63,11 @@ spec:
             - mountPath: '/etc/cloudflare-ddns'
               name: config-cloudflare-ddns
               readOnly: true
+            - mountPath: /tmp
+              name: tmp
       volumes:
         - name: config-cloudflare-ddns
           secret:
             secretName: config-cloudflare-ddns
+        - name: tmp
+          emptyDir: {}

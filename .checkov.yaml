@@ -1,8 +1,8 @@
 ---
 # Checkov configuration for home-argocd GitOps repo.
 #
-# bootstrap/ is excluded for the same reason the lint workflow excludes it:
-# one-time cluster-setup files that are never managed by ArgoCD and carry
-# intentional style deviations (no securityContext, latest image tags, etc.).
+# Only the Gateway API demo manifest is excluded — it is a throwaway test
+# fixture (placeholder [DOMAIN], bare nginx image, no securityContext) that
+# is never deployed to production and is intentionally minimal.
 skip-path:
-  - bootstrap/
+  - bootstrap/5.gatewayapi/2.demo.yml
