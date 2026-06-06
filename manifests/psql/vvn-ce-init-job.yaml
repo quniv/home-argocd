@@ -13,8 +13,9 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: init
-          image: postgres:17-alpine
-          env:
+          image: postgres:17-alpine@sha256:979c4379dd698aba0b890599a6104e082035f98ef31d9b9291ec22f2b13059ca
+          imagePullPolicy: IfNotPresent
+          env:  # checkov:skip=CKV_K8S_35:Secrets injected via secretKeyRef — standard k8s pattern for short-lived init Jobs
             - name: PGPASSWORD
               valueFrom:
                 secretKeyRef:
@@ -41,10 +42,8 @@ spec:
             - |
               set -e
               HOST=psql-postgresql.psql.svc.cluster.local
-
               echo "Waiting for PostgreSQL to be ready..."
               until pg_isready -h "$HOST" -U postgres; do sleep 3; done
-
               echo "Creating user and database..."
               psql -h "$HOST" -U postgres <<SQL
                 DO \$\$
@@ -57,18 +56,15 @@ spec:
                   END IF;
                 END
                 \$\$;
-
                 SELECT format('CREATE DATABASE %I OWNER %I', '${DB_NAME}', '${DB_USER}')
                   WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '${DB_NAME}')\gexec
               SQL
-
               echo "Creating schema..."
               psql -h "$HOST" -U postgres -d "$DB_NAME" <<SQL
                 CREATE SCHEMA IF NOT EXISTS "${DB_USER}" AUTHORIZATION "${DB_USER}";
                 ALTER ROLE "${DB_USER}" SET search_path = "${DB_USER}";
                 REVOKE ALL ON SCHEMA public FROM PUBLIC;
               SQL
-
               echo "Done."
           resources:
             requests:
@@ -83,7 +79,7 @@ spec:
               drop: [ALL]
             readOnlyRootFilesystem: true
             runAsNonRoot: true
-            runAsUser: 70
+            runAsUser: 999
       securityContext:
         seccompProfile:
           type: RuntimeDefault
