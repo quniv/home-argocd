@@ -5,13 +5,13 @@ metadata:
   name: letsencrypt
 spec:
   acme:
-    email: [EMAIL_ADDRESS]
+    email: admin@example.com
     server: https://acme-v02.api.letsencrypt.org/directory
     privateKeySecretRef:
       name: letsencrypt-tls
     solvers:
       - dns01:
-        cloudflare:
-          apiTokenSecretRef:
-            name: cloudflare-api-token-secret
-            key: api-token
+          cloudflare:
+            apiTokenSecretRef:
+              name: cloudflare-api-token-secret
+              key: api-token

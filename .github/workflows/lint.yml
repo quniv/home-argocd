@@ -92,14 +92,17 @@ jobs:
           kubeconform -v
 
       - name: Validate Kubernetes manifests
-        # bootstrap/ is included — it contains real k8s resources; Helm values
-        # files and unknown CRD types are skipped by -ignore-missing-schemas.
+        # bootstrap/ is included — it contains real k8s resources.
         # charts/ is excluded — Helm templates are not rendered k8s manifests.
+        # Helm values files (values.ya?ml) and JSON config files are excluded
+        # because they are not k8s manifests and have no 'kind' key.
         run: |
           kubeconform \
             -ignore-missing-schemas \
             -kubernetes-version 1.36.0 \
             -schema-location default \
             -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
+            -ignore-filename-pattern 'values\.ya?ml$' \
+            -ignore-filename-pattern '\.json$' \
             -summary \
             manifests/ apps/ bootstrap/
