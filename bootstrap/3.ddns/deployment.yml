@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -25,37 +26,30 @@ spec:
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
-              drop:
-                - ALL
+              drop: [ALL]
             readOnlyRootFilesystem: true
           resources:
             requests:
-              memory: '32Mi'
-              cpu: '10m'
+              memory: 32Mi
+              cpu: 10m
             limits:
-              memory: '32Mi'
-              cpu: '50m'
+              memory: 32Mi
+              cpu: 50m
           livenessProbe:
             exec:
-              command:
-                - /bin/sh
-                - -c
-                - kill -0 1
+              command: [/bin/sh, -c, kill -0 1]
             initialDelaySeconds: 30
             periodSeconds: 60
           readinessProbe:
             exec:
-              command:
-                - /bin/sh
-                - -c
-                - kill -0 1
+              command: [/bin/sh, -c, kill -0 1]
             initialDelaySeconds: 10
             periodSeconds: 30
           env:
             - name: CONFIG_PATH
-              value: '/etc/cloudflare-ddns/'
+              value: /etc/cloudflare-ddns/
           volumeMounts:
-            - mountPath: '/etc/cloudflare-ddns'
+            - mountPath: /etc/cloudflare-ddns
               name: config-cloudflare-ddns
               readOnly: true
             - mountPath: /tmp

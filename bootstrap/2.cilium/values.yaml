@@ -1,3 +1,4 @@
+---
 USER-SUPPLIED VALUES:
 bgpControlPlane:
   enabled: false

@@ -1,14 +1,12 @@
+---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: tls-cert
 spec:
   secretName: tls-cert
-  usages:
-    - digital signature
-    - key encipherment
-  dnsNames:
-    - "*.chillpickle.org"
+  usages: [digital signature, key encipherment]
+  dnsNames: ['*.chillpickle.org']
   issuerRef:
     name: letsencrypt
     kind: ClusterIssuer
