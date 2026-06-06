@@ -5,5 +5,3 @@ metadata:
 spec:
   blocks:
     - cidr: "192.168.121.0/24"
-
-

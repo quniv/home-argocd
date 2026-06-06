@@ -10,8 +10,9 @@
 #                     resolved via the CRDs-catalog; anything still unknown is
 #                     skipped with --ignore-missing-schemas rather than failing.
 #
-# bootstrap/ is intentionally excluded: it contains one-time setup files
-# with known style deviations that are not actively managed.
+# bootstrap/ and charts/webapp/values/ are linted alongside manifests/ and apps/.
+# charts/webapp/templates/ is excluded from yamllint (Helm Go templates are not
+# valid YAML) and from kubeconform (templates are not rendered k8s manifests).
 name: Lint
 
 on:
@@ -47,23 +48,24 @@ jobs:
         # indentation, missing newline at EOF. Runs before the lint check so
         # fixable issues never fail the build.
         if: github.event_name == 'pull_request'
-        run: yamlfix manifests/ apps/
+        run: yamlfix manifests/ apps/ bootstrap/ charts/webapp/values/
 
       - name: Commit auto-fixed files (PRs only)
-        # Stages manifests/ and apps/ then commits only if yamlfix made changes.
+        # Stages all linted paths then commits only if yamlfix made changes.
         # Uses manual git commands to avoid glob-expansion issues with actions.
         if: github.event_name == 'pull_request'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add manifests/ apps/
+          git add manifests/ apps/ bootstrap/ charts/webapp/values/
           git diff --staged --quiet || git commit -m "style: auto-fix YAML style issues via yamlfix"
           git push
 
-      - name: Run yamllint on manifests and apps
-        # Scopes to manifests/ and apps/ only — these are the paths ArgoCD
-        # syncs and must remain valid. bootstrap/ has intentional deviations.
-        run: yamllint -c .yamllint.yml manifests/ apps/
+      - name: Run yamllint
+        # .yamllint.yml ignores charts/webapp/templates (Helm Go templates).
+        # All other YAML in the repo is linted — manifests, apps, bootstrap,
+        # and the chart values files.
+        run: yamllint -c .yamllint.yml manifests/ apps/ bootstrap/ charts/
 
   kubeconform:
     name: Kubeconform manifest validation
@@ -90,18 +92,14 @@ jobs:
           kubeconform -v
 
       - name: Validate Kubernetes manifests
-        # Schema resolution order:
-        #   1. Built-in k8s 1.28 schema (default)
-        #   2. CRDs-catalog — covers ArgoCD (argoproj.io), Gateway API
-        #      (gateway.networking.k8s.io), External Secrets Operator
-        #      (external-secrets.io), and cert-manager (cert-manager.io)
-        #   3. --ignore-missing-schemas — Cilium and Infisical-specific CRDs
-        #      not in the catalog are skipped rather than failing the build.
+        # bootstrap/ is included — it contains real k8s resources; Helm values
+        # files and unknown CRD types are skipped by -ignore-missing-schemas.
+        # charts/ is excluded — Helm templates are not rendered k8s manifests.
         run: |
           kubeconform \
             -ignore-missing-schemas \
-            -kubernetes-version 1.28.0 \
+            -kubernetes-version 1.36.0 \
             -schema-location default \
             -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
             -summary \
-            manifests/ apps/
+            manifests/ apps/ bootstrap/

@@ -5,10 +5,10 @@ metadata:
 spec:
   secretName: tls-cert
   usages:
-  - digital signature
-  - key encipherment
+    - digital signature
+    - key encipherment
   dnsNames:
-  - "*.chillpickle.org"
+    - "*.chillpickle.org"
   issuerRef:
     name: letsencrypt
     kind: ClusterIssuer
