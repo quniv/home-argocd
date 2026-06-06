@@ -7,9 +7,7 @@ metadata:
   annotations:
     argocd.argoproj.io/hook: PostSync
     argocd.argoproj.io/hook-delete-policy: HookSucceeded
-    # Secrets must be injected as env vars — psql CLI reads PGPASSWORD and DB_*
-    # from the environment; file-based injection would require a wrapper script.
-    checkov.io/skip1: "CKV_K8S_35=env vars required by psql CLI (PGPASSWORD, DB_USER etc.)"
+    checkov.io/skip1: CKV_K8S_35=psql-CLI-requires-env-vars
 spec:
   template:
     spec:
