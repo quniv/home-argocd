@@ -19,6 +19,11 @@ spec:
             existingSecret: psql-admin-credentials
             secretKeys:
               adminPasswordKey: postgres-password
+          primary:
+            persistentVolumeClaimRetentionPolicy:
+              enabled: true
+              whenDeleted: Delete
+              whenScaled: Retain
     - repoURL: https://github.com/quniv/home-argocd.git
       targetRevision: HEAD
       path: manifests/psql
