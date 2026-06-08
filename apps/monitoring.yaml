@@ -22,7 +22,6 @@ spec:
             enabled: false
           kubeScheduler:
             enabled: false
-
           grafana:
             admin:
               existingSecret: grafana-admin-secret
@@ -37,7 +36,6 @@ spec:
               limits:
                 cpu: 200m
                 memory: 256Mi
-
           prometheus:
             prometheusSpec:
               retention: 3d
@@ -50,7 +48,6 @@ spec:
                 limits:
                   cpu: 500m
                   memory: 1Gi
-
           alertmanager:
             alertmanagerSpec:
               retention: 24h
