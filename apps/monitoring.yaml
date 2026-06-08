@@ -19,16 +19,16 @@ spec:
           kubeProxy:
             enabled: false
           kubeControllerManager:
-            enabled: false
+            enabled: true
           kubeScheduler:
-            enabled: false
+            enabled: true
           grafana:
             admin:
               existingSecret: grafana-admin-secret
               userKey: admin-user
               passwordKey: admin-password
             persistence:
-              enabled: false
+              enabled: true
             resources:
               requests:
                 cpu: 100m
@@ -38,7 +38,7 @@ spec:
                 memory: 256Mi
           prometheus:
             prometheusSpec:
-              retention: 3d
+              retention: 30d
               retentionSize: 5GiB
               storageSpec: {}
               resources:
