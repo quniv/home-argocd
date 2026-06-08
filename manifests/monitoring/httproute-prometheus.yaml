@@ -6,11 +6,20 @@ metadata:
   namespace: monitoring
 spec:
   parentRefs:
-    - name: external
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: external
       namespace: infra
       sectionName: https
   hostnames: [prometheus.chillpickle.org]
   rules:
-    - backendRefs:
-        - name: kube-prometheus-stack-prometheus
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - group: ''
+          kind: Service
+          name: kube-prometheus-stack-prometheus
           port: 9090
+          weight: 1
