@@ -61,7 +61,7 @@ jobs:
         # is a no-op.
         id: fix-pr
         if: github.event_name == 'pull_request'
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           commit-message: "style: auto-fix YAML style issues via yamlfix"
           title: "style: fix YAML style in ${{ github.head_ref }}"
