@@ -1,0 +1,72 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '1'
+spec:
+  project: default
+  sources:
+    - chart: kube-prometheus-stack
+      repoURL: https://prometheus-community.github.io/helm-charts
+      targetRevision: 86.2.0
+      helm:
+        releaseName: kube-prometheus-stack
+        values: |
+          # Cilium replaces kube-proxy — these components are unreachable
+          kubeProxy:
+            enabled: false
+          kubeControllerManager:
+            enabled: true
+          kubeScheduler:
+            enabled: true
+          grafana:
+            admin:
+              existingSecret: grafana-admin-secret
+              userKey: admin-user
+              passwordKey: admin-password
+            persistence:
+              enabled: true
+            resources:
+              requests:
+                cpu: 100m
+                memory: 128Mi
+              limits:
+                cpu: 200m
+                memory: 256Mi
+          prometheus:
+            prometheusSpec:
+              retention: 30d
+              retentionSize: 5GiB
+              storageSpec: {}
+              resources:
+                requests:
+                  cpu: 200m
+                  memory: 512Mi
+                limits:
+                  cpu: 500m
+                  memory: 1Gi
+          alertmanager:
+            alertmanagerSpec:
+              retention: 24h
+              storage: {}
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
+                limits:
+                  cpu: 100m
+                  memory: 128Mi
+    - repoURL: https://github.com/quniv/home-argocd.git
+      targetRevision: HEAD
+      path: manifests/monitoring
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions: [CreateNamespace=true, ServerSideApply=true]
