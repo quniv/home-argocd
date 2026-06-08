@@ -6,11 +6,20 @@ metadata:
   namespace: monitoring
 spec:
   parentRefs:
-    - name: external
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: external
       namespace: infra
       sectionName: https
   hostnames: [alertmanager.chillpickle.org]
   rules:
-    - backendRefs:
-        - name: kube-prometheus-stack-alertmanager
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: kube-prometheus-stack-alertmanager
           port: 9093
+          weight: 1
