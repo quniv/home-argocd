@@ -15,3 +15,10 @@ misconfigurations:
       - bootstrap/3.ddns/deployment.yml
       - bootstrap/5.gatewayapi/2.demo.yml
     statement: "Official images (timothyjmiller/cloudflare-ddns, nginxinc/nginx-unprivileged) have no trusted-registry alternative"
+  # Home-lab backup bucket uses SSE-S3 (AES256) which provides at-rest encryption.
+  # A KMS CMK adds cost and operational overhead (key rotation, IAM policies, billing)
+  # with no compliance benefit for a personal cluster.
+  - id: AWS-0132
+    paths:
+      - bootstrap/8.s3-velero/terraform/main.tf
+    statement: "SSE-S3 (AES256) is sufficient for a home-lab backup bucket; KMS CMK is not required"
