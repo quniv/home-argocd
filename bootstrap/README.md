@@ -10,6 +10,8 @@ One-time setup steps to bring up the lacia-cluster from scratch. Run in order.
 | `4.cert-manager/` | cert-manager + Let's Encrypt wildcard cert for `*.chillpickle.org` |
 | `5.gatewayapi/` | `infra` namespace, Cilium Gateway `external`, TLS termination |
 | `6.argocd/` | ArgoCD install + hand off to GitOps |
+| `7.infisical/` | Seed `infisical-auth` secret so ESO can pull from Infisical |
+| `8.s3-velero/` | Terraform: S3 bucket + IAM user for Velero cluster backups |
 
 After step 6, install ESO and seed the Infisical secret:
 
