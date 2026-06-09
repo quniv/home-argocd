@@ -13,6 +13,7 @@ Managed by `/feat` (open) and `/done` (close).
 
 | Branch | Folder | Task | Status | Opened | Updated |
 |--------|--------|------|--------|--------|---------|
+| fix/grafana-restarting-09062026 | /home/qitpydev/Workspace/personal/home-argocd | Fix Grafana pod restarting (#25) | In Progress | 2026-06-09 | 2026-06-09 |
 
 ## Completed
 
