@@ -1,0 +1,45 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cloudflare-ddns
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '1'
+spec:
+  project: default
+  sources:
+    - repoURL: oci://ghcr.io/quniv
+      chart: cloudflare-ddns
+      targetRevision: 0.1.0
+      helm:
+        releaseName: cloudflare-ddns
+        values: |
+          replicaCount: 1
+          hostNetwork: true
+          cloudflare:
+            existingSecret: cloudflare-ddns-secret
+            existingSecretKey: CLOUDFLARE_API_TOKEN
+          domains: "*.chillpickle.org"
+          ip4Provider: cloudflare.trace
+          ip6Provider: cloudflare.trace
+          updateCron: "@every 5m"
+          updateOnStart: true
+          deleteOnStop: false
+          proxied: "false"
+          ttl: 1
+          resources:
+            limits:
+              memory: 32Mi
+              cpu: 50m
+    - repoURL: https://github.com/quniv/home-argocd.git
+      targetRevision: HEAD
+      path: manifests/cloudflare-ddns
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cloudflare-ddns
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions: [CreateNamespace=true]
