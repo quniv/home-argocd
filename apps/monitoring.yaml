@@ -52,6 +52,9 @@ spec:
             alertmanagerSpec:
               retention: 24h
               storage: {}
+              # configSecret replaces the Helm-generated alertmanager config entirely.
+              # ESO renders the full alertmanager.yaml from Infisical secrets.
+              configSecret: alertmanager-config
               resources:
                 requests:
                   cpu: 50m
