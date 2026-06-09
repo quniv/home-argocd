@@ -1,6 +1,6 @@
 # TODO
 
-- [ ] Install Velero — backup cluster state to cloud storage
+- [x] Install Velero — backup cluster state to cloud storage (PR #35)
 - [ ] Deploy vvn-ce project via ArgoCD
 - [ ] Deploy daily-news project via ArgoCD
 - [ ] Install monitoring stack (Prometheus + Grafana + Loki)
