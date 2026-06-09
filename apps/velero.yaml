@@ -1,0 +1,111 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: velero
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '1'
+spec:
+  project: default
+  sources:
+    - chart: velero
+      repoURL: https://vmware-tanzu.github.io/helm-charts
+      targetRevision: 12.0.2
+      helm:
+        releaseName: velero
+        values: |
+          image:
+            repository: docker.io/velero/velero
+            tag: v1.18.1
+
+          # AWS plugin is required for S3 backup storage
+          initContainers:
+            - name: velero-plugin-for-aws
+              image: velero/velero-plugin-for-aws:v1.13.1
+              imagePullPolicy: IfNotPresent
+              volumeMounts:
+                - mountPath: /target
+                  name: plugins
+
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+
+          # Reference the secret created by ExternalSecret in manifests/velero/
+          credentials:
+            existingSecret: velero-credentials
+
+          # Node-agent DaemonSet required for file-system (Kopia) volume backup
+          deployNodeAgent: true
+
+          nodeAgent:
+            resources:
+              requests:
+                cpu: 100m
+                memory: 256Mi
+              limits:
+                cpu: 500m
+                memory: 1Gi
+
+          # Disable CSI volume snapshots — local-path-provisioner has no CSI snapshot support
+          snapshotsEnabled: false
+
+          configuration:
+            backupStorageLocation:
+              - name: default
+                provider: aws
+                # TODO: replace with your actual S3 bucket name
+                bucket: <VELERO_S3_BUCKET>
+                default: true
+                credential:
+                  name: velero-credentials
+                  key: cloud
+                config:
+                  region: ap-southeast-1
+
+            # Default off: PV backup is opt-in via pod annotation
+            # backup.velero.io/backup-volumes: <pvc-name>
+            # Add this annotation to postgres pods in manifests/psql/ to enable data backup
+            defaultVolumesToFsBackup: false
+
+          schedules:
+            every-12h:
+              schedule: "0 */12 * * *"
+              template:
+                storageLocation: default
+                ttl: 72h0m0s
+
+            daily:
+              schedule: "0 0 * * *"
+              template:
+                storageLocation: default
+                ttl: 336h0m0s  # 14 days
+
+            weekly:
+              schedule: "0 0 * * 0"
+              template:
+                storageLocation: default
+                ttl: 1344h0m0s  # 8 weeks
+
+            monthly:
+              schedule: "0 0 1 * *"
+              template:
+                storageLocation: default
+                ttl: 8760h0m0s  # 52 weeks / ~1 year
+
+    - repoURL: https://github.com/quniv/home-argocd.git
+      targetRevision: HEAD
+      path: manifests/velero
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: velero
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions: [CreateNamespace=true, ServerSideApply=true]
