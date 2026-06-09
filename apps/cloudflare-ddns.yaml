@@ -9,7 +9,7 @@ metadata:
 spec:
   project: default
   sources:
-    - repoURL: oci://ghcr.io/quniv
+    - repoURL: oci://ghcr.io/quniv/cloudflare-ddns
       chart: cloudflare-ddns
       targetRevision: 0.1.0
       helm:
