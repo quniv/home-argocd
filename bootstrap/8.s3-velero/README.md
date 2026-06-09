@@ -14,7 +14,7 @@ Provisions the AWS infrastructure that Velero needs for cluster backups:
 ## Usage
 
 ```bash
-cd bootstrap/8.s3-velero
+cd bootstrap/8.s3-velero/terraform
 
 cp terraform.tfvars.example terraform.tfvars
 # Edit terraform.tfvars — set your bucket name (must be globally unique)
