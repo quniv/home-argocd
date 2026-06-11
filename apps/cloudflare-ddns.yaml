@@ -26,7 +26,7 @@ spec:
           updateCron: "@every 5m"
           updateOnStart: true
           deleteOnStop: false
-          proxied: "false"
+          proxied: "true"
           ttl: 1
           resources:
             limits:
