@@ -49,8 +49,7 @@ spec:
             backupStorageLocation:
               - name: default
                 provider: aws
-                # TODO: replace with your actual S3 bucket name
-                bucket: <VELERO_S3_BUCKET>
+                bucket: lacia-cluster-velero-backups
                 default: true
                 credential:
                   name: velero-credentials
