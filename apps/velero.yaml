@@ -100,10 +100,12 @@ spec:
       kind: Deployment
       name: velero
       namespace: velero
-      jsonPointers:
-        - /spec/replicas
+      jsonPointers: [/spec/replicas]
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
-    syncOptions: [CreateNamespace=true, ServerSideApply=true, RespectIgnoreDifferences=true]
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+      - RespectIgnoreDifferences=true

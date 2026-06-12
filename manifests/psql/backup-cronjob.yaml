@@ -7,7 +7,7 @@ metadata:
   annotations:
     checkov.io/skip1: CKV_K8S_35=pg_dump-and-aws-cli-require-env-vars
 spec:
-  schedule: '0 19 * * *'  # 02:00 Asia/Ho_Chi_Minh (UTC+7)
+  schedule: 0 19 * * *  # 02:00 Asia/Ho_Chi_Minh (UTC+7)
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
