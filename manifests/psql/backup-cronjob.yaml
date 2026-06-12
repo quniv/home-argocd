@@ -65,6 +65,7 @@ spec:
                 readOnlyRootFilesystem: true
                 runAsNonRoot: true
                 runAsUser: 65532
+                runAsGroup: 65532
           containers:
             - name: upload
               image: amazon/aws-cli:2.35.3@sha256:6b27a3edde2d59dd755a920df0849ca432e5323e2a992421d40eedf78d07da54
@@ -107,6 +108,7 @@ spec:
                 readOnlyRootFilesystem: true
                 runAsNonRoot: true
                 runAsUser: 65532
+                runAsGroup: 65532
           volumes:
             - name: backup
               emptyDir:
