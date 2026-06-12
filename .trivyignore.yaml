@@ -14,8 +14,7 @@ misconfigurations:
     paths:
       - bootstrap/3.ddns/deployment.yml
       - bootstrap/5.gatewayapi/2.demo.yml
-      - manifests/psql/backup-cronjob.yaml
-    statement: "Official images (timothyjmiller/cloudflare-ddns, nginxinc/nginx-unprivileged, amazon/aws-cli) have no trusted-registry alternative"
+    statement: "Official images (timothyjmiller/cloudflare-ddns, nginxinc/nginx-unprivileged) have no trusted-registry alternative"
   # Home-lab backup bucket uses SSE-S3 (AES256) which provides at-rest encryption.
   # A KMS CMK adds cost and operational overhead (key rotation, IAM policies, billing)
   # with no compliance benefit for a personal cluster.

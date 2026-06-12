@@ -1,0 +1,54 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: databasus
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '2'
+spec:
+  project: default
+  source:
+    repoURL: oci://ghcr.io/databasus/charts/databasus
+    chart: databasus
+    targetRevision: 3.42.0
+    helm:
+      releaseName: databasus
+      values: |
+        image:
+          tag: v3.42.0
+          pullPolicy: IfNotPresent
+
+        # Entrypoint bootstraps embedded PostgreSQL + Valkey as root, then
+        # drops privileges via gosu — chart docs forbid runAsNonRoot here.
+        resources:
+          requests:
+            cpu: 250m
+            memory: 512Mi
+          limits:
+            cpu: "1"
+            memory: 1Gi
+
+        persistence:
+          storageClassName: local-path
+          size: 10Gi
+
+        # Backup targets, S3 storage (lacia-cluster-velero-backups) and
+        # Telegram notifications are configured in the UI and persisted on
+        # the PVC — no ExternalSecret needed.
+        route:
+          enabled: true
+          hostnames:
+            - databasus.chillpickle.org
+          parentRefs:
+            - name: external
+              namespace: infra
+              sectionName: https
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: databasus
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions: [CreateNamespace=true]

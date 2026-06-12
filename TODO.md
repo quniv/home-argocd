@@ -1,6 +1,6 @@
 # TODO
 
-- [x] Install Velero — backup cluster state to cloud storage (installed scaled-to-zero; psql data covered by pg_dump CronJob → S3, see bootstrap/8.velero)
+- [x] Install Velero — backup cluster state to cloud storage (installed scaled-to-zero; psql data covered by Databasus → S3, see bootstrap/8.velero)
 - [ ] Deploy vvn-ce project via ArgoCD
 - [ ] Deploy daily-news project via ArgoCD
 - [ ] Install monitoring stack (Prometheus + Grafana + Loki)

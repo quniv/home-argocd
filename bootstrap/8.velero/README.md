@@ -5,17 +5,17 @@ Provisions the AWS infrastructure for cluster backups:
 - S3 bucket (versioning + AES-256 SSE + public-access block)
 - IAM user `velero` with a least-privilege policy scoped to that bucket
 - IAM access key for the user
-- Lifecycle rule expiring `psql/` pg_dump objects after 30 days
+- Lifecycle rule aborting incomplete multipart uploads after 3 days
 
 The bucket is shared by two consumers:
 
-| Consumer | Prefix | Retention |
+| Consumer | Configured via | Retention |
 |---|---|---|
-| Velero (`apps/velero.yaml`) | `backups/` etc. | Velero backup TTLs |
-| pg_dump CronJob (`manifests/psql/backup-cronjob.yaml`) | `psql/` | 30-day S3 lifecycle rule |
+| Velero (`apps/velero.yaml`) | Helm values + Infisical | Velero backup TTLs |
+| Databasus (`apps/databasus.yaml`) | UI (S3 storage destination) | Databasus retention policies |
 
 > **Note:** Velero is currently **parked at zero replicas** to save cluster
-> resources — the pg_dump CronJob is the active backup mechanism. See
+> resources — Databasus is the active backup mechanism for psql. See
 > "Scale-to-zero" below.
 
 ## Prerequisites
@@ -48,11 +48,10 @@ Go to the **home-cluster** project → **prod** environment and add:
 |---|---|
 | `/velero/AWS_ACCESS_KEY_ID` | `terraform output aws_access_key_id` |
 | `/velero/AWS_SECRET_ACCESS_KEY` | `terraform output -raw aws_secret_access_key` |
-| `/velero/S3_BUCKET` | `terraform output bucket_name` |
 
-The first two feed both the `velero-credentials` secret (velero namespace) and
-the `psql-backup-s3` secret (psql namespace). `S3_BUCKET` is read by the
-pg_dump CronJob so the bucket name never lives in git.
+These feed the `velero-credentials` secret (velero namespace). Databasus takes
+the same credentials directly through its UI when adding the S3 storage
+destination (`terraform output bucket_name`, region `ap-southeast-1`).
 
 ### 2 — Update the ArgoCD application
 

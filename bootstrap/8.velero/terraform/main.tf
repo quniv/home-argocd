@@ -21,22 +21,16 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "velero" {
   }
 }
 
-# pg_dump CronJob (manifests/psql/backup-cronjob.yaml) writes under psql/ —
-# expire dumps after 30 days; Velero manages its own prefixes via backup TTLs
+# Object retention is managed by the consumers themselves (Velero backup TTLs,
+# Databasus retention policies) — no expiration rule here, only multipart hygiene
 resource "aws_s3_bucket_lifecycle_configuration" "velero" {
   bucket = aws_s3_bucket.velero.id
 
   rule {
-    id     = "expire-psql-dumps"
+    id     = "abort-incomplete-uploads"
     status = "Enabled"
 
-    filter {
-      prefix = "psql/"
-    }
-
-    expiration {
-      days = 30
-    }
+    filter {}
 
     abort_incomplete_multipart_upload {
       days_after_initiation = 3

@@ -89,7 +89,7 @@ spec:
     server: https://kubernetes.default.svc
     namespace: velero
   # Velero is installed but parked at zero replicas to save resources —
-  # psql data is covered by the pg_dump CronJob in manifests/psql/.
+  # psql data is covered by Databasus (apps/databasus.yaml).
   # The chart hardcodes replicas: 1, so the scale-down is a one-time manual step:
   #   kubectl -n velero scale deploy/velero --replicas=0
   # ignoreDifferences below stops selfHeal from scaling it back up.
