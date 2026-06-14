@@ -18,7 +18,6 @@ spec:
           image:
             repository: docker.io/velero/velero
             tag: v1.18.1
-
           initContainers:
             - name: velero-plugin-for-aws
               image: velero/velero-plugin-for-aws:v1.13.1
@@ -26,7 +25,6 @@ spec:
               volumeMounts:
                 - mountPath: /target
                   name: plugins
-
           resources:
             requests:
               cpu: 100m
@@ -34,7 +32,6 @@ spec:
             limits:
               cpu: 500m
               memory: 512Mi
-
           credentials:
             existingSecret: velero-credentials
 
@@ -51,7 +48,6 @@ spec:
 
           # local-path-provisioner has no CSI snapshot driver
           snapshotsEnabled: false
-
           configuration:
             uploaderType: kopia
             backupStorageLocation:
@@ -66,7 +62,6 @@ spec:
                   region: ap-southeast-1
             # PV backup is opt-in globally; schedules below enable it for psql only
             defaultVolumesToFsBackup: false
-
           schedules:
             psql-daily:
               schedule: "0 0 * * *"
