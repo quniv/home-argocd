@@ -5,11 +5,32 @@ metadata:
   name: hermes
   namespace: hermes
   annotations:
-    checkov.io/skip1: CKV_K8S_22=s6-overlay-supervisor-writes-to-fs-at-runtime
-    checkov.io/skip2: CKV_K8S_40=s6-overlay-runs-as-root-as-pid1-supervisor
-    checkov.io/skip3: CKV_K8S_23=s6-overlay-requires-root-as-pid1
-    checkov.io/skip4: CKV_K8S_35=hermes-requires-env-vars-for-api-keys
-    checkov.io/skip5: CKV2_K8S_6=no-network-policy-single-pod-home-cluster
+    # CKV_K8S_22 — readOnlyRootFilesystem: s6-overlay (the PID1 process supervisor
+    # bundled in the Hermes image) writes socket files and state to /run and /var/run
+    # at startup. A read-only root filesystem prevents the supervisor from starting,
+    # which breaks the entire container.
+    checkov.io/skip1: CKV_K8S_22=s6-overlay-writes-to-run-at-startup
+
+    # CKV_K8S_40 — runAsUser > 10000: s6-overlay must run as UID 0 (root) because it
+    # acts as PID 1 and needs to fork/exec child processes and manage their signals.
+    # The Hermes process itself runs as a non-root user after s6 hands off.
+    checkov.io/skip2: CKV_K8S_40=s6-overlay-pid1-requires-root-uid
+
+    # CKV_K8S_23 — runAsNonRoot: same constraint as CKV_K8S_40. The container entry
+    # point is s6-overlay which requires UID 0; dropping to non-root is not possible
+    # without replacing the init system.
+    checkov.io/skip3: CKV_K8S_23=s6-overlay-pid1-requires-root
+
+    # CKV_K8S_35 — prefer secrets as files over env vars: Hermes reads API keys and
+    # dashboard credentials from environment variables (either injected env or its
+    # /opt/data/.env file). The application does not support reading secrets from
+    # mounted files; env var injection is the only supported mechanism.
+    checkov.io/skip4: CKV_K8S_35=hermes-only-supports-env-var-secrets
+
+    # CKV2_K8S_6 — NetworkPolicy: home-lab cluster has no NetworkPolicy enforcement
+    # (Cilium is configured in allow-all mode for simplicity). Adding a NetworkPolicy
+    # object would be silently ignored and give a false sense of isolation.
+    checkov.io/skip5: CKV2_K8S_6=no-netpol-enforcement-in-home-lab
 spec:
   replicas: 1
   # Recreate is required — Hermes has a non-concurrent write design; two pods
