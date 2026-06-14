@@ -18,8 +18,6 @@ spec:
           image:
             repository: docker.io/velero/velero
             tag: v1.18.1
-
-          # AWS plugin is required for S3 backup storage
           initContainers:
             - name: velero-plugin-for-aws
               image: velero/velero-plugin-for-aws:v1.13.1
@@ -34,18 +32,24 @@ spec:
             limits:
               cpu: 500m
               memory: 512Mi
-
-          # Reference the secret created by ExternalSecret in manifests/velero/
           credentials:
             existingSecret: velero-credentials
 
-          # Node-agent DaemonSet disabled while Velero is parked at zero replicas.
-          # Re-enable (deployNodeAgent: true) when file-system volume backup is needed.
-          deployNodeAgent: false
+          # Node-agent DaemonSet required for Kopia file-system volume backup
+          deployNodeAgent: true
+          nodeAgent:
+            resources:
+              requests:
+                cpu: 100m
+                memory: 256Mi
+              limits:
+                cpu: 500m
+                memory: 1Gi
 
-          # Disable CSI volume snapshots — local-path-provisioner has no CSI snapshot support
+          # local-path-provisioner has no CSI snapshot driver
           snapshotsEnabled: false
           configuration:
+            uploaderType: kopia
             backupStorageLocation:
               - name: default
                 provider: aws
@@ -56,55 +60,33 @@ spec:
                   key: cloud
                 config:
                   region: ap-southeast-1
-
-            # Default off: PV backup is opt-in via pod annotation
-            # backup.velero.io/backup-volumes: <pvc-name>
-            # Add this annotation to postgres pods in manifests/psql/ to enable data backup
+            # PV backup is opt-in globally; schedules below enable it for psql only
             defaultVolumesToFsBackup: false
           schedules:
-            every-12h:
-              schedule: "0 */12 * * *"
-              template:
-                storageLocation: default
-                ttl: 72h0m0s
-            daily:
+            psql-daily:
               schedule: "0 0 * * *"
               template:
+                includedNamespaces:
+                  - psql
+                defaultVolumesToFsBackup: true
                 storageLocation: default
                 ttl: 336h0m0s  # 14 days
-            weekly:
+            psql-weekly:
               schedule: "0 0 * * 0"
               template:
+                includedNamespaces:
+                  - psql
+                defaultVolumesToFsBackup: true
                 storageLocation: default
                 ttl: 1344h0m0s  # 8 weeks
-            monthly:
-              schedule: "0 0 1 * *"
-              template:
-                storageLocation: default
-                ttl: 8760h0m0s  # 52 weeks / ~1 year
     - repoURL: https://github.com/quniv/home-argocd.git
       targetRevision: HEAD
       path: manifests/velero
   destination:
     server: https://kubernetes.default.svc
     namespace: velero
-  # Velero is installed but parked at zero replicas to save resources —
-  # psql data is covered by Databasus (apps/databasus.yaml).
-  # The chart hardcodes replicas: 1, so the scale-down is a one-time manual step:
-  #   kubectl -n velero scale deploy/velero --replicas=0
-  # ignoreDifferences below stops selfHeal from scaling it back up.
-  # To reactivate Velero: kubectl -n velero scale deploy/velero --replicas=1
-  ignoreDifferences:
-    - group: apps
-      kind: Deployment
-      name: velero
-      namespace: velero
-      jsonPointers: [/spec/replicas]
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-      - ServerSideApply=true
-      - RespectIgnoreDifferences=true
+    syncOptions: [CreateNamespace=true, ServerSideApply=true]
