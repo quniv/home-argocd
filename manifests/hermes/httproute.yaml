@@ -1,0 +1,34 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: hermes-http-redirect
+  namespace: hermes
+spec:
+  parentRefs:
+    - name: external
+      namespace: infra
+      sectionName: http
+  hostnames: [hermes.chillpickle.org]
+  rules:
+    - filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: hermes
+  namespace: hermes
+spec:
+  parentRefs:
+    - name: external
+      namespace: infra
+      sectionName: https
+  hostnames: [hermes.chillpickle.org]
+  rules:
+    - backendRefs:
+        - name: hermes
+          port: 9119
