@@ -23,3 +23,30 @@ misconfigurations:
     paths:
       - manifests/hermes/deployment.yaml
     statement: "s6-overlay supervisor writes to /run at startup; readOnlyRootFilesystem would prevent Hermes from starting"
+  # Home-lab backup bucket uses SSE-S3 (AES256) which provides at-rest encryption.
+  # A KMS CMK adds cost and operational overhead (key rotation, IAM policies, billing)
+  # with no compliance benefit for a personal cluster.
+  - id: AWS-0132
+    paths:
+      - bootstrap/8.velero/terraform/main.tf
+    statement: "SSE-S3 (AES256) is sufficient for a home-lab backup bucket; KMS CMK is not required"
+  # Backup objects are immutable point-in-time dumps already rotated by Velero
+  # TTLs and a 30-day lifecycle rule on the psql/ prefix. Versioning would
+  # roughly double storage cost with no recovery benefit.
+  - id: AWS-0090
+    paths:
+      - bootstrap/8.velero/terraform/main.tf
+    statement: "Backups are immutable and lifecycle-rotated; S3 versioning adds cost without recovery benefit"
+  # S3 access logging requires a second log bucket and is aimed at audit/compliance
+  # needs a personal cluster does not have.
+  - id: AWS-0089
+    paths:
+      - bootstrap/8.velero/terraform/main.tf
+    statement: "Access logging not warranted for a home-lab backup bucket"
+  # The cluster runs on-prem (libvirt VMs), so instance profiles / IRSA are not
+  # available — a dedicated single-purpose IAM user with a bucket-scoped policy
+  # is the standard Velero pattern outside AWS.
+  - id: AWS-0143
+    paths:
+      - bootstrap/8.velero/terraform/main.tf
+    statement: "On-prem cluster cannot use IAM roles; single-purpose user with least-privilege policy is intended"

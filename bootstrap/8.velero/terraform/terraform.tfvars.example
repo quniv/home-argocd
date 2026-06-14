@@ -1,0 +1,3 @@
+bucket_name   = "lacia-cluster-velero-backups"
+region        = "ap-southeast-1"
+iam_user_name = "velero"

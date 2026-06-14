@@ -1,0 +1,8 @@
+# Terraform state — contains the IAM secret key in plaintext
+terraform.tfstate
+terraform.tfstate.backup
+.terraform/
+.terraform.lock.hcl
+
+# Vars file with real values (use .example as template)
+terraform.tfvars
