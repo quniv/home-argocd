@@ -1,0 +1,85 @@
+---
+# checkov:skip=CKV_K8S_28:s6-overlay PID1 supervisor requires root to manage services
+# checkov:skip=CKV_K8S_30:s6-overlay writes to container filesystem at runtime
+# checkov:skip=CKV_K8S_40:s6-overlay requires root as PID 1
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hermes
+  namespace: hermes
+spec:
+  replicas: 1
+  # Recreate is required — Hermes has a non-concurrent write design; two pods
+  # against the same PVC will corrupt state.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: hermes
+  template:
+    metadata:
+      labels:
+        app: hermes
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: hermes
+          # TODO: pin to a specific digest before production:
+          #   docker pull nousresearch/hermes-agent:latest
+          #   docker inspect --format='{{index .RepoDigests 0}}' nousresearch/hermes-agent:latest
+          image: nousresearch/hermes-agent:latest
+          imagePullPolicy: Always
+          command: [gateway, run]
+          ports:
+            - name: api
+              containerPort: 8642
+              protocol: TCP
+            - name: dashboard
+              containerPort: 9119
+              protocol: TCP
+          env:
+            - name: HERMES_DASHBOARD
+              value: "1"
+          envFrom:
+            - secretRef:
+                name: hermes-credentials
+          volumeMounts:
+            - name: data
+              mountPath: /opt/data
+            - name: dshm
+              mountPath: /dev/shm
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: "2"
+              memory: 4Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [NET_RAW]
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: api
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: api
+            initialDelaySeconds: 15
+            periodSeconds: 10
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: hermes-data
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Gi
