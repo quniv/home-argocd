@@ -15,3 +15,11 @@ misconfigurations:
       - bootstrap/3.ddns/deployment.yml
       - bootstrap/5.gatewayapi/2.demo.yml
     statement: "Official images (timothyjmiller/cloudflare-ddns, nginxinc/nginx-unprivileged) have no trusted-registry alternative"
+  # Hermes Agent uses s6-overlay as PID1 process supervisor. s6 writes socket
+  # files and state to /run and /var/run at startup and requires a writable
+  # root filesystem. Setting readOnlyRootFilesystem: true would break the
+  # supervisor and prevent the agent from starting.
+  - id: KSV-0014
+    paths:
+      - manifests/hermes/deployment.yaml
+    statement: "s6-overlay supervisor writes to /run at startup; readOnlyRootFilesystem would prevent Hermes from starting"
