@@ -11,15 +11,15 @@ metadata:
     # which breaks the entire container.
     checkov.io/skip1: CKV_K8S_22=s6-overlay-writes-to-run-at-startup
 
-    # CKV_K8S_40 — runAsUser > 10000: s6-overlay must run as UID 0 (root) because it
-    # acts as PID 1 and needs to fork/exec child processes and manage their signals.
-    # The Hermes process itself runs as a non-root user after s6 hands off.
-    checkov.io/skip2: CKV_K8S_40=s6-overlay-pid1-requires-root-uid
+    # CKV_K8S_40 — runAsUser > 10000: the image explicitly sets USER root (Dockerfile
+    # layer 34) so that s6-overlay can act as PID 1 and manage child processes and
+    # signals. The container runs as UID 0 throughout its lifecycle.
+    checkov.io/skip2: CKV_K8S_40=image-sets-user-root-for-s6-overlay-pid1
 
-    # CKV_K8S_23 — runAsNonRoot: same constraint as CKV_K8S_40. The container entry
-    # point is s6-overlay which requires UID 0; dropping to non-root is not possible
-    # without replacing the init system.
-    checkov.io/skip3: CKV_K8S_23=s6-overlay-pid1-requires-root
+    # CKV_K8S_23 — runAsNonRoot: same constraint as CKV_K8S_40. The image sets
+    # USER root explicitly; there is no upstream mechanism to drop privileges without
+    # rebuilding the image with a different init system.
+    checkov.io/skip3: CKV_K8S_23=image-sets-user-root-no-upstream-drop
 
     # CKV_K8S_35 — prefer secrets as files over env vars: Hermes reads API keys and
     # dashboard credentials from environment variables (either injected env or its
