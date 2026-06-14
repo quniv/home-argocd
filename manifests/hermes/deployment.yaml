@@ -5,13 +5,11 @@ metadata:
   name: hermes
   namespace: hermes
   annotations:
-    checkov.io/skip1: CKV_K8S_43=image-digest-user-must-pin-before-production
-    checkov.io/skip2: CKV_K8S_22=s6-overlay-supervisor-writes-to-fs-at-runtime
-    checkov.io/skip3: CKV_K8S_40=s6-overlay-runs-as-root-as-pid1-supervisor
-    checkov.io/skip4: CKV_K8S_23=s6-overlay-requires-root-as-pid1
-    checkov.io/skip5: CKV_K8S_35=hermes-requires-env-vars-for-api-keys
-    checkov.io/skip6: CKV2_K8S_6=no-network-policy-single-pod-home-cluster
-    checkov.io/skip7: CKV_K8S_14=image-tag-user-must-pin-to-digest-before-production
+    checkov.io/skip1: CKV_K8S_22=s6-overlay-supervisor-writes-to-fs-at-runtime
+    checkov.io/skip2: CKV_K8S_40=s6-overlay-runs-as-root-as-pid1-supervisor
+    checkov.io/skip3: CKV_K8S_23=s6-overlay-requires-root-as-pid1
+    checkov.io/skip4: CKV_K8S_35=hermes-requires-env-vars-for-api-keys
+    checkov.io/skip5: CKV2_K8S_6=no-network-policy-single-pod-home-cluster
 spec:
   replicas: 1
   # Recreate is required — Hermes has a non-concurrent write design; two pods
@@ -32,11 +30,8 @@ spec:
           type: RuntimeDefault
       containers:
         - name: hermes
-          # TODO: pin to a specific digest before production:
-          #   docker pull nousresearch/hermes-agent:latest
-          #   docker inspect --format='{{index .RepoDigests 0}}' nousresearch/hermes-agent:latest
-          image: nousresearch/hermes-agent:latest
-          imagePullPolicy: Always
+          image: nousresearch/hermes-agent@sha256:132e6ca17b1229ce316fd4f43a99aae6e866807dca9c0be11e9d21ae9fb51ebf
+          imagePullPolicy: IfNotPresent
           command: [gateway, run]
           ports:
             - name: api
