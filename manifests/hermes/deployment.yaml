@@ -46,6 +46,7 @@ spec:
     spec:
       automountServiceAccountToken: false
       securityContext:
+        fsGroup: 10000
         seccompProfile:
           type: RuntimeDefault
       containers:
