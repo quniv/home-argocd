@@ -30,6 +30,14 @@ metadata:
     # to call setgroups() when switching from root to the hermes user at runtime. Without
     # these, s6 legacy-services crashes (exit 111) and the container exits.
     checkov.io/skip5: CKV_K8S_28=setgid-setuid-required-for-s6-applyuidgid-user-switch
+
+    # CKV_K8S_22 — readOnlyRootFilesystem: s6-overlay writes runtime state to /run at
+    # startup (s6-rc dirs, supervise fifos, service symlinks). A read-only root FS
+    # requires an emptyDir overlay at /run, but that emptyDir hides the image's own
+    # /run/service directory (which has the correct permissions for the hermes user).
+    # Removing readOnlyRootFilesystem lets s6-overlay use the image's writable layer
+    # for /run directly — matching how docker-compose runs this image.
+    checkov.io/skip6: CKV_K8S_22=s6-overlay-needs-writable-run-emptydir-overlay-breaks-perms
 spec:
   replicas: 1
   # Recreate is required — Hermes has a non-concurrent write design; two pods
@@ -72,10 +80,6 @@ spec:
               mountPath: /opt/data
             - name: dshm
               mountPath: /dev/shm
-            - name: run
-              mountPath: /run
-            - name: tmp
-              mountPath: /tmp
           resources:
             requests:
               cpu: 500m
@@ -85,7 +89,6 @@ spec:
               memory: 4Gi
           securityContext:
             allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
             capabilities:
               drop: [ALL]
               # SETGID + SETUID are required for s6-applyuidgid to call setgroups()
@@ -112,7 +115,3 @@ spec:
           emptyDir:
             medium: Memory
             sizeLimit: 1Gi
-        - name: run
-          emptyDir: {}
-        - name: tmp
-          emptyDir: {}
