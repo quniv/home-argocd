@@ -26,12 +26,6 @@ metadata:
     # object would be silently ignored and give a false sense of isolation.
     checkov.io/skip4: CKV2_K8S_6=no-netpol-enforcement-in-home-lab
 
-    # CKV_K8S_28 — capabilities add: SETGID, SETUID, and CHOWN are required for s6-overlay.
-    # SETGID + SETUID let s6-applyuidgid call setgroups() when switching from root to the
-    # hermes user at runtime. CHOWN is required so the cont-init script can chown /run/service
-    # to the hermes user before container_boot.py creates entries inside it as UID 10000.
-    checkov.io/skip5: CKV_K8S_28=setgid-setuid-chown-required-for-s6-overlay-user-switch
-
     # CKV_K8S_22 — readOnlyRootFilesystem: s6-overlay writes runtime state to /run at
     # startup (s6-rc dirs, supervise fifos, service symlinks). A read-only root FS
     # requires an emptyDir overlay at /run, but that emptyDir hides the image's own
@@ -90,14 +84,6 @@ spec:
               memory: 4Gi
           securityContext:
             allowPrivilegeEscalation: false
-            capabilities:
-              drop: [ALL]
-              # SETGID + SETUID: s6-applyuidgid needs these to call setgroups() when
-              # switching from root to hermes (uid 10000) at runtime.
-              # CHOWN: cont-init script 02-reconcile-profiles does `chown hermes:hermes
-              # /run/service` as root so container_boot.py (running as hermes) can write
-              # inside it. Without CAP_CHOWN the chown silently fails and Python gets EPERM.
-              add: [SETGID, SETUID, CHOWN]
           livenessProbe:
             httpGet:
               path: /health
