@@ -7,8 +7,8 @@
 
 ## Phase 0 — Cloudflare DNS (manual, external)
 
-- [ ] Add `qtlab.dev` zone to Cloudflare (if not already)
-- [ ] Create `A` record `*.qtlab.dev` → home IP (same target as current `*.chillpickle.org`)
+- [x] Add `qtlab.dev` zone to Cloudflare (if not already)
+- [x] Create `A` record `*.qtlab.dev` → home IP (same target as current `*.chillpickle.org`)
 - [ ] Verify DNS resolves: `dig '*.qtlab.dev'` shows correct IP
 - [ ] Keep `*.chillpickle.org` alive until cutover is fully verified
 
