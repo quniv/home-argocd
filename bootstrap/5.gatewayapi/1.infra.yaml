@@ -13,7 +13,7 @@ metadata:
 spec:
   secretName: wildcard-tls
   usages: [digital signature, key encipherment]
-  dnsNames: ['*.chillpickle.org']
+  dnsNames: ['*.qtlab.dev']
   issuerRef:
     name: letsencrypt
     kind: ClusterIssuer
@@ -32,14 +32,14 @@ spec:
     - name: http
       protocol: HTTP
       port: 80
-      hostname: '*.chillpickle.org'
+      hostname: '*.qtlab.dev'
       allowedRoutes:
         namespaces:
           from: All
     - name: https
       protocol: HTTPS
       port: 443
-      hostname: '*.chillpickle.org'
+      hostname: '*.qtlab.dev'
       tls:
         mode: Terminate
         certificateRefs:
