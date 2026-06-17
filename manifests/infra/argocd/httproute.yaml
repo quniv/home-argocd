@@ -9,7 +9,7 @@ spec:
     - name: external
       namespace: infra
       sectionName: http
-  hostnames: [argocd.chillpickle.org]
+  hostnames: [argocd.qtlab.dev]
   rules:
     - filters:
         - type: RequestRedirect
@@ -27,7 +27,7 @@ spec:
     - name: external
       namespace: infra
       sectionName: https
-  hostnames: [argocd.chillpickle.org]
+  hostnames: [argocd.qtlab.dev]
   rules:
     - backendRefs:
         - name: argocd-server

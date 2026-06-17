@@ -20,7 +20,7 @@ apps/root.yaml              ← applied manually once; watches apps/ dir
 
 **Secrets flow:** Infisical → ESO `ClusterSecretStore` (`infisical`, project `home-cluster`, env `prod`) → `ExternalSecret` CRDs → native k8s Secrets. The only manual secret is `infisical-auth` in `external-secrets` namespace (Infisical Machine Identity credentials).
 
-**Cluster ingress:** Cilium Gateway API. A single `Gateway` named `external` in namespace `infra` terminates TLS (wildcard cert `*.chillpickle.org`). `HTTPRoute` resources in any namespace attach to it.
+**Cluster ingress:** Cilium Gateway API. A single `Gateway` named `external` in namespace `infra` terminates TLS (wildcard cert `*.qtlab.dev`). `HTTPRoute` resources in any namespace attach to it.
 
 ## Namespace layout
 
@@ -74,7 +74,7 @@ spec:
       namespace: infra
       sectionName: https
   hostnames:
-    - "<app>.chillpickle.org"
+    - "<app>.qtlab.dev"
 ```
 
 ## Local validation

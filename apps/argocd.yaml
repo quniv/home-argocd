@@ -16,7 +16,7 @@ spec:
       releaseName: argocd
       valuesObject:
         global:
-          domain: argocd.chillpickle.org
+          domain: argocd.qtlab.dev
         configs:
           params:
             server.insecure: 'true'

@@ -9,7 +9,7 @@ spec:
     - name: external
       namespace: infra
       sectionName: http
-  hostnames: [hermes.chillpickle.org]
+  hostnames: [hermes.qtlab.dev]
   rules:
     - filters:
         - type: RequestRedirect
@@ -27,7 +27,7 @@ spec:
     - name: external
       namespace: infra
       sectionName: https
-  hostnames: [hermes.chillpickle.org]
+  hostnames: [hermes.qtlab.dev]
   rules:
     - backendRefs:
         - name: hermes

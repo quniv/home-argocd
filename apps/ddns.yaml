@@ -20,7 +20,7 @@ spec:
           cloudflare:
             existingSecret: cloudflare-ddns-secret
             existingSecretKey: CLOUDFLARE_API_TOKEN
-          domains: "*.chillpickle.org"
+          domains: "*.qtlab.dev"
           ip4Provider: cloudflare.trace
           ip6Provider: cloudflare.trace
           updateCron: "@every 5m"
@@ -34,10 +34,10 @@ spec:
               cpu: 50m
     - repoURL: https://github.com/quniv/home-argocd.git
       targetRevision: HEAD
-      path: manifests/cloudflare-ddns
+      path: manifests/ddns
   destination:
     server: https://kubernetes.default.svc
-    namespace: cloudflare-ddns
+    namespace: ddns
   syncPolicy:
     automated:
       prune: true

@@ -38,7 +38,7 @@ spec:
         route:
           enabled: true
           hostnames:
-            - databasus.chillpickle.org
+            - databasus.qtlab.dev
           parentRefs:
             - name: external
               namespace: infra

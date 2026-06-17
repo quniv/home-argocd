@@ -29,7 +29,7 @@ configmap:
     CACHE_TTL_SECONDS: '2592000'
 httproute:
   enabled: true
-  hostname: vvn.chillpickle.org
+  hostname: vvn.qtlab.dev
 externalsecret:
   enabled: true
   targetSecret: vvn-backend-secrets  # checkov:skip=CKV_SECRET_6:False positive - K8s secret name, not a secret value
