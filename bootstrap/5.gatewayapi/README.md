@@ -3,7 +3,7 @@
 Create the `infra` namespace and the shared Cilium `Gateway` that all apps attach to.
 
 ```bash
-kubectl apply -f 1.infra.yaml   # infra namespace + Gateway "external" (TLS, *.chillpickle.org)
+kubectl apply -f 1.infra.yaml   # infra namespace + Gateway "external" (TLS, *.qtlab.dev)
 kubectl apply -f 2.demo.yml     # optional smoke-test HTTPRoute
 ```
 

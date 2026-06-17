@@ -6,7 +6,7 @@ metadata:
 spec:
   secretName: tls-cert
   usages: [digital signature, key encipherment]
-  dnsNames: ['*.chillpickle.org', '*.qtlab.dev']
+  dnsNames: ['*.qtlab.dev']
   issuerRef:
     name: letsencrypt
     kind: ClusterIssuer
