@@ -20,7 +20,7 @@ spec:
           cloudflare:
             existingSecret: cloudflare-ddns-secret
             existingSecretKey: CLOUDFLARE_API_TOKEN
-          domains: "*.qtlab.dev"
+          domains: "*.qtlab.dev,qtlab.dev"
           ip4Provider: cloudflare.trace
           ip6Provider: cloudflare.trace
           updateCron: "@every 5m"
