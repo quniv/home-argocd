@@ -5,7 +5,7 @@ metadata:
   name: landing-html
   namespace: landing
 data:
-  index.html: |
+  index.html: |-
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -20,22 +20,22 @@ data:
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          background: #0a0a0a;
-          color: #f0f0f0;
+          background: rgb(10, 10, 10);
+          color: rgb(240, 240, 240);
           font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
         }
         .domain {
           font-size: 0.85rem;
           letter-spacing: 0.3em;
           text-transform: uppercase;
-          color: #555;
+          color: rgb(85, 85, 85);
           margin-bottom: 1.5rem;
         }
         h1 {
           font-size: clamp(2rem, 6vw, 3.5rem);
           font-weight: 700;
           letter-spacing: -0.02em;
-          background: linear-gradient(135deg, #ffffff 0%, #999 100%);
+          background: linear-gradient(135deg, white 0%, rgb(153, 153, 153) 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
@@ -50,12 +50,12 @@ data:
           font-size: 0.9rem;
           letter-spacing: 0.2em;
           text-transform: uppercase;
-          color: #555;
+          color: rgb(85, 85, 85);
         }
         .dot {
           width: 7px;
           height: 7px;
-          background: #4a9eff;
+          background: rgb(74, 158, 255);
           border-radius: 50%;
           animation: pulse 2s ease-in-out infinite;
         }
@@ -71,7 +71,7 @@ data:
           align-items: center;
           gap: 0.6rem;
           font-size: 0.7rem;
-          color: #333;
+          color: rgb(51, 51, 51);
           letter-spacing: 0.08em;
         }
         .social {
@@ -79,12 +79,12 @@ data:
           gap: 1.2rem;
         }
         .social a {
-          color: #444;
+          color: rgb(68, 68, 68);
           text-decoration: none;
           letter-spacing: 0.08em;
           transition: color 0.2s;
         }
-        .social a:hover { color: #4a9eff; }
+        .social a:hover { color: rgb(74, 158, 255); }
       </style>
     </head>
     <body>
