@@ -1,0 +1,106 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: landing-html
+  namespace: landing
+data:
+  index.html: |-
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Technology Innovation Labs</title>
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          background: rgb(10, 10, 10);
+          color: rgb(240, 240, 240);
+          font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        .domain {
+          font-size: 0.85rem;
+          letter-spacing: 0.3em;
+          text-transform: uppercase;
+          color: rgb(85, 85, 85);
+          margin-bottom: 1.5rem;
+        }
+        h1 {
+          font-size: clamp(2rem, 6vw, 3.5rem);
+          font-weight: 700;
+          letter-spacing: -0.02em;
+          background: linear-gradient(135deg, white 0%, rgb(153, 153, 153) 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          text-align: center;
+          line-height: 1.2;
+          margin-bottom: 1.5rem;
+        }
+        .status {
+          display: flex;
+          align-items: center;
+          gap: 0.6rem;
+          font-size: 0.9rem;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          color: rgb(85, 85, 85);
+        }
+        .dot {
+          width: 7px;
+          height: 7px;
+          background: rgb(74, 158, 255);
+          border-radius: 50%;
+          animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.3; transform: scale(0.7); }
+        }
+        footer {
+          position: fixed;
+          bottom: 2rem;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.6rem;
+          font-size: 0.7rem;
+          color: rgb(51, 51, 51);
+          letter-spacing: 0.08em;
+        }
+        .social {
+          display: flex;
+          gap: 1.2rem;
+        }
+        .social a {
+          color: rgb(68, 68, 68);
+          text-decoration: none;
+          letter-spacing: 0.08em;
+          transition: color 0.2s;
+        }
+        .social a:hover { color: rgb(74, 158, 255); }
+      </style>
+    </head>
+    <body>
+      <p class="domain">qtlab.dev</p>
+      <h1>Technology Innovation<br>Labs</h1>
+      <div class="status">
+        <span class="dot"></span>
+        Coming Soon
+        <span class="dot" style="animation-delay: 0.7s"></span>
+      </div>
+      <footer>
+        <div class="social">
+          <a href="https://github.com/quniv" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://www.linkedin.com/in/quniv/" target="_blank" rel="noopener">LinkedIn</a>
+        </div>
+        <span>Powered by quniv &middot; &copy; 2026 Technology Innovation Labs</span>
+      </footer>
+    </body>
+    </html>
