@@ -7,6 +7,12 @@ terraform {
       version = "~> 6.0"
     }
   }
+
+  backend "s3" {
+    bucket = "terraform-rabbit2109"
+    key    = "home-argocd/velero/terraform.tfstate"
+    region = "ap-southeast-1"
+  }
 }
 
 provider "aws" {
