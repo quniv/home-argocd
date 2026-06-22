@@ -13,7 +13,7 @@ metadata:
 spec:
   secretName: wildcard-tls
   usages: [digital signature, key encipherment]
-  dnsNames: ['*.qtlab.dev', 'qtlab.dev']
+  dnsNames: ['*.qtlab.dev', qtlab.dev]
   issuerRef:
     name: letsencrypt
     kind: ClusterIssuer
