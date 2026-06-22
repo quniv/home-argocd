@@ -36,7 +36,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           # Fetch the actual branch ref so auto-fix branch can be created
           # from the correct base; pull_request events check out a merge
@@ -98,7 +98,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Install kubeconform
         # Fetches the latest release binary directly from GitHub; no
