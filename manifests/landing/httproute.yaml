@@ -8,7 +8,7 @@ spec:
   parentRefs:
     - name: external
       namespace: infra
-      sectionName: http
+      sectionName: http-apex
   hostnames: [qtlab.dev]
   rules:
     - filters:
@@ -26,7 +26,7 @@ spec:
   parentRefs:
     - name: external
       namespace: infra
-      sectionName: https
+      sectionName: https-apex
   hostnames: [qtlab.dev]
   rules:
     - backendRefs:
