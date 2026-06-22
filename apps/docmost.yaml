@@ -1,0 +1,45 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: docmost
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '2'
+spec:
+  project: default
+  sources:
+    - chart: docmost
+      repoURL: https://repo.helmforge.dev
+      targetRevision: 1.2.2
+      helm:
+        releaseName: docmost
+        values: |
+          docmost:
+            appUrl: https://docs.qtlab.dev
+            appSecret: ""
+          database:
+            mode: postgresql
+          redis:
+            enabled: true
+          storage:
+            local:
+              size: 5Gi
+          ingress:
+            enabled: false
+          gateway:
+            enabled: false
+          extraEnvFrom:
+            - secretRef:
+                name: docmost-credentials
+    - repoURL: https://github.com/quniv/home-argocd.git
+      targetRevision: HEAD
+      path: manifests/docmost
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: docmost
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions: [CreateNamespace=true]
