@@ -13,7 +13,7 @@ metadata:
 spec:
   secretName: wildcard-tls
   usages: [digital signature, key encipherment]
-  dnsNames: ['*.qtlab.dev']
+  dnsNames: ['*.qtlab.dev', qtlab.dev]
   issuerRef:
     name: letsencrypt
     kind: ClusterIssuer
@@ -40,6 +40,25 @@ spec:
       protocol: HTTPS
       port: 443
       hostname: '*.qtlab.dev'
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - kind: Secret
+            name: wildcard-tls
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: http-apex
+      protocol: HTTP
+      port: 80
+      hostname: qtlab.dev
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: https-apex
+      protocol: HTTPS
+      port: 443
+      hostname: qtlab.dev
       tls:
         mode: Terminate
         certificateRefs:
