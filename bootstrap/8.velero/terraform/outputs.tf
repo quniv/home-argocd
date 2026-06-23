@@ -18,3 +18,8 @@ output "aws_secret_access_key" {
   value       = aws_iam_access_key.velero.secret
   sensitive   = true
 }
+
+output "tf_ci_role_arn" {
+  description = "Add to GitHub repo secrets as AWS_TF_ROLE_ARN (Settings → Secrets → Actions)"
+  value       = aws_iam_role.tf_ci.arn
+}

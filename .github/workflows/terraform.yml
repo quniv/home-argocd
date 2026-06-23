@@ -1,0 +1,97 @@
+---
+# Terraform CI workflow — validates and plans the Velero AWS infrastructure.
+#
+# Runs on any PR or push to main that touches bootstrap/8.velero/terraform/.
+# Uses OIDC to assume an AWS role — no long-lived credentials stored in secrets.
+#
+# Jobs:
+#   terraform  — fmt check, init, validate, plan
+#               On PRs: plan output is posted as a PR comment.
+name: Terraform
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - bootstrap/8.velero/terraform/**
+  pull_request:
+    branches:
+      - main
+    paths:
+      - bootstrap/8.velero/terraform/**
+
+permissions: read-all
+
+jobs:
+  terraform:
+    name: Terraform validate & plan
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+    defaults:
+      run:
+        working-directory: bootstrap/8.velero/terraform
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_TF_ROLE_ARN }}
+          aws-region: ap-southeast-1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Format check
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color 2>&1 | tee plan.txt
+        continue-on-error: true
+
+      - name: Post plan as PR comment
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const plan = fs.readFileSync('bootstrap/8.velero/terraform/plan.txt', 'utf8');
+            const body = `## Terraform Plan\n\`\`\`\n${plan.slice(0, 60000)}\n\`\`\``;
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const prev = comments.find(c => c.body.startsWith('## Terraform Plan'));
+            if (prev) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: prev.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
+
+      - name: Fail if plan failed
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
