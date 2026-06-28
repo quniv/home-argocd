@@ -82,7 +82,7 @@ httproute:
 
 externalsecret:
   enabled: false
-  refreshInterval: 1h
+  refreshInterval: 1m
   store: infisical
   storeKind: ClusterSecretStore
   targetSecret: ""
