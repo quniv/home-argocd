@@ -2,7 +2,7 @@
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
-  name: psql-vvn-ce
+  name: vvn-ce-psql
   namespace: vvn-ce
 spec:
   refreshInterval: 1m
@@ -10,7 +10,7 @@ spec:
     name: infisical
     kind: ClusterSecretStore
   target:
-    name: psql-vvn-ce
+    name: vvn-ce-psql
     creationPolicy: Owner
   dataFrom:
     - find:

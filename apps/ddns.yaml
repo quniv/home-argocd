@@ -18,7 +18,7 @@ spec:
           replicaCount: 1
           hostNetwork: true
           cloudflare:
-            existingSecret: cloudflare-ddns-secret
+            existingSecret: ddns-creds
             existingSecretKey: CLOUDFLARE_API_TOKEN
           domains: "*.qtlab.dev,qtlab.dev"
           ip4Provider: cloudflare.trace
