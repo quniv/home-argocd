@@ -79,9 +79,6 @@ spec:
                 defaultVolumesToFsBackup: true
                 storageLocation: default
                 ttl: 1344h0m0s  # 8 weeks
-    - repoURL: https://github.com/quniv/home-argocd.git
-      targetRevision: HEAD
-      path: manifests/velero
   destination:
     server: https://kubernetes.default.svc
     namespace: velero

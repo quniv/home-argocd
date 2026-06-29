@@ -4,8 +4,6 @@ kind: ExternalSecret
 metadata:
   name: docmost-creds
   namespace: docmost
-  annotations:
-    argocd.argoproj.io/sync-wave: '-1'
 spec:
   refreshInterval: 1h
   secretStoreRef:
@@ -25,8 +23,6 @@ kind: ExternalSecret
 metadata:
   name: docmost-psql-auth
   namespace: docmost
-  annotations:
-    argocd.argoproj.io/sync-wave: '-1'
 spec:
   refreshInterval: 1h
   secretStoreRef:
@@ -49,8 +45,6 @@ kind: ExternalSecret
 metadata:
   name: docmost-redis-auth
   namespace: docmost
-  annotations:
-    argocd.argoproj.io/sync-wave: '-1'
 spec:
   refreshInterval: 1h
   secretStoreRef:

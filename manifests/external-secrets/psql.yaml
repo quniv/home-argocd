@@ -4,8 +4,6 @@ kind: ExternalSecret
 metadata:
   name: psql-admin
   namespace: psql
-  annotations:
-    argocd.argoproj.io/sync-wave: '-1'
 spec:
   refreshInterval: 1m
   secretStoreRef:

@@ -32,11 +32,6 @@ spec:
             enabled: false
     - repoURL: https://github.com/quniv/home-argocd.git
       targetRevision: HEAD
-      path: manifests/vvn-ce
-      directory:
-        recurse: true
-    - repoURL: https://github.com/quniv/home-argocd.git
-      targetRevision: HEAD
       path: charts/psql-init
       helm:
         releaseName: vvn-ce

@@ -1,0 +1,23 @@
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: hermes-creds
+  namespace: hermes
+spec:
+  refreshInterval: 1m
+  secretStoreRef:
+    name: infisical
+    kind: ClusterSecretStore
+  target:
+    name: hermes-creds
+    creationPolicy: Owner
+    deletionPolicy: Retain
+  dataFrom:
+    - find:
+        conversionStrategy: Default
+        decodingStrategy: None
+        nullBytePolicy: Ignore
+        path: /hermes
+        name:
+          regexp: .*

@@ -9,8 +9,6 @@ kind: ExternalSecret
 metadata:
   name: alertmanager-config
   namespace: monitoring
-  annotations:
-    argocd.argoproj.io/sync-wave: '-1'
 spec:
   refreshInterval: 1m
   secretStoreRef:
@@ -81,6 +79,36 @@ spec:
     - secretKey: TELEGRAM_CHAT_ID  # checkov:skip=CKV_SECRET_6:False positive — Infisical path reference, not an encoded secret value
       remoteRef:
         key: /monitoring/TELEGRAM_CHAT_ID
+        conversionStrategy: Default
+        decodingStrategy: None
+        metadataPolicy: None
+        nullBytePolicy: Ignore
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: grafana-admin-secret
+  namespace: monitoring
+spec:
+  refreshInterval: 1m
+  secretStoreRef:
+    name: infisical
+    kind: ClusterSecretStore
+  target:
+    name: grafana-admin-secret
+    creationPolicy: Owner
+    deletionPolicy: Retain
+  data:
+    - secretKey: admin-user  # checkov:skip=CKV_SECRET_6:False positive — this is an Infisical path reference, not an encoded secret value
+      remoteRef:
+        key: /monitoring/GRAFANA_ADMIN_USER
+        conversionStrategy: Default
+        decodingStrategy: None
+        metadataPolicy: None
+        nullBytePolicy: Ignore
+    - secretKey: admin-password  # checkov:skip=CKV_SECRET_6:False positive — this is an Infisical path reference, not an encoded secret value
+      remoteRef:
+        key: /monitoring/GRAFANA_ADMIN_PASSWORD
         conversionStrategy: Default
         decodingStrategy: None
         metadataPolicy: None

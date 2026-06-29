@@ -2,17 +2,15 @@
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
-  name: hermes-creds
-  namespace: hermes
-  annotations:
-    argocd.argoproj.io/sync-wave: '-1'
+  name: cloudflare-ddns-secret
+  namespace: ddns
 spec:
   refreshInterval: 1m
   secretStoreRef:
     name: infisical
     kind: ClusterSecretStore
   target:
-    name: hermes-creds
+    name: cloudflare-ddns-secret
     creationPolicy: Owner
     deletionPolicy: Retain
   dataFrom:
@@ -20,6 +18,6 @@ spec:
         conversionStrategy: Default
         decodingStrategy: None
         nullBytePolicy: Ignore
-        path: /hermes
+        path: /ddns
         name:
           regexp: .*

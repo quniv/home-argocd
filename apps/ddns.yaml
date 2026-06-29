@@ -32,9 +32,6 @@ spec:
             limits:
               memory: 32Mi
               cpu: 50m
-    - repoURL: https://github.com/quniv/home-argocd.git
-      targetRevision: HEAD
-      path: manifests/ddns
   destination:
     server: https://kubernetes.default.svc
     namespace: ddns

@@ -24,9 +24,6 @@ spec:
               enabled: true
               whenDeleted: Delete
               whenScaled: Retain
-    - repoURL: https://github.com/quniv/home-argocd.git
-      targetRevision: HEAD
-      path: manifests/psql
   destination:
     server: https://kubernetes.default.svc
     namespace: psql
