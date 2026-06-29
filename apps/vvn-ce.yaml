@@ -35,8 +35,7 @@ spec:
       path: charts/psql-init
       helm:
         releaseName: vvn-ce
-        valueFiles:
-          - values/vvn-ce.yaml
+        valueFiles: [values/vvn-ce.yaml]
   destination:
     server: https://kubernetes.default.svc
     namespace: vvn-ce
