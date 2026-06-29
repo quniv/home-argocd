@@ -17,6 +17,10 @@ spec:
     - secretKey: APP_SECRET  # checkov:skip=CKV_SECRET_6:False positive — Infisical path reference, not an encoded secret value
       remoteRef:
         key: /docmost/APP_SECRET
+        conversionStrategy: Default
+        decodingStrategy: None
+        metadataPolicy: None
+        nullBytePolicy: Ignore
 ---
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
@@ -36,9 +40,17 @@ spec:
     - secretKey: user-password  # checkov:skip=CKV_SECRET_6:False positive — Infisical path reference, not an encoded secret value
       remoteRef:
         key: /docmost/POSTGRES_PASSWORD
+        conversionStrategy: Default
+        decodingStrategy: None
+        metadataPolicy: None
+        nullBytePolicy: Ignore
     - secretKey: postgres-password  # checkov:skip=CKV_SECRET_6:False positive — Infisical path reference, not an encoded secret value
       remoteRef:
         key: /docmost/POSTGRES_ADMIN_PASSWORD
+        conversionStrategy: Default
+        decodingStrategy: None
+        metadataPolicy: None
+        nullBytePolicy: Ignore
 ---
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
@@ -58,3 +70,7 @@ spec:
     - secretKey: redis-password  # checkov:skip=CKV_SECRET_6:False positive — Infisical path reference, not an encoded secret value
       remoteRef:
         key: /docmost/REDIS_PASSWORD
+        conversionStrategy: Default
+        decodingStrategy: None
+        metadataPolicy: None
+        nullBytePolicy: Ignore
