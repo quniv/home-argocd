@@ -8,12 +8,33 @@ metadata:
     argocd.argoproj.io/sync-wave: '2'
 spec:
   project: default
-  source:
-    repoURL: https://github.com/quniv/home-argocd.git
-    targetRevision: HEAD
-    path: manifests/vvn-ce
-    directory:
-      recurse: true
+  sources:
+    - repoURL: oci://ghcr.io/quniv/charts
+      chart: vvn-ce
+      targetRevision: 0.0.0
+      helm:
+        releaseName: vvn-ce
+        values: |
+          secret:
+            create: false
+            existingSecret: vvn-ce
+          backend:
+            enabled: true
+            httpRoute:
+              enabled: true
+              parentRefs:
+                - name: external
+                  namespace: infra
+                  sectionName: https
+              hostnames:
+                - vocab.qtlab.dev
+          crawler:
+            enabled: false
+    - repoURL: https://github.com/quniv/home-argocd.git
+      targetRevision: HEAD
+      path: manifests/vvn-ce
+      directory:
+        recurse: true
   destination:
     server: https://kubernetes.default.svc
     namespace: vvn-ce
