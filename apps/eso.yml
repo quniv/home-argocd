@@ -4,14 +4,19 @@ kind: Application
 metadata:
   name: external-secrets
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '1'
 spec:
   project: default
-  source:
-    chart: external-secrets
-    repoURL: https://charts.external-secrets.io
-    targetRevision: 2.5.0
-    helm:
-      releaseName: external-secrets
+  sources:
+    - chart: external-secrets
+      repoURL: https://charts.external-secrets.io
+      targetRevision: 2.5.0
+      helm:
+        releaseName: external-secrets
+    - repoURL: https://github.com/quniv/home-argocd.git
+      targetRevision: HEAD
+      path: manifests/external-secrets
   destination:
     server: https://kubernetes.default.svc
     namespace: eso
