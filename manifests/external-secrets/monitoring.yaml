@@ -72,17 +72,9 @@ spec:
     - secretKey: TELEGRAM_BOT_TOKEN  # checkov:skip=CKV_SECRET_6:False positive — Infisical path reference, not an encoded secret value
       remoteRef:
         key: /monitoring/TELEGRAM_BOT_TOKEN
-        conversionStrategy: Default
-        decodingStrategy: None
-        metadataPolicy: None
-        nullBytePolicy: Ignore
     - secretKey: TELEGRAM_CHAT_ID  # checkov:skip=CKV_SECRET_6:False positive — Infisical path reference, not an encoded secret value
       remoteRef:
         key: /monitoring/TELEGRAM_CHAT_ID
-        conversionStrategy: Default
-        decodingStrategy: None
-        metadataPolicy: None
-        nullBytePolicy: Ignore
 ---
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
@@ -102,14 +94,6 @@ spec:
     - secretKey: admin-user  # checkov:skip=CKV_SECRET_6:False positive — this is an Infisical path reference, not an encoded secret value
       remoteRef:
         key: /monitoring/GRAFANA_ADMIN_USER
-        conversionStrategy: Default
-        decodingStrategy: None
-        metadataPolicy: None
-        nullBytePolicy: Ignore
     - secretKey: admin-password  # checkov:skip=CKV_SECRET_6:False positive — this is an Infisical path reference, not an encoded secret value
       remoteRef:
         key: /monitoring/GRAFANA_ADMIN_PASSWORD
-        conversionStrategy: Default
-        decodingStrategy: None
-        metadataPolicy: None
-        nullBytePolicy: Ignore

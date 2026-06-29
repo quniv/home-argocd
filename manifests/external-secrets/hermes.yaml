@@ -15,9 +15,6 @@ spec:
     deletionPolicy: Retain
   dataFrom:
     - find:
-        conversionStrategy: Default
-        decodingStrategy: None
-        nullBytePolicy: Ignore
         path: /hermes
         name:
           regexp: .*

@@ -22,9 +22,6 @@ spec:
           aws_secret_access_key={{ .AWS_SECRET_ACCESS_KEY }}
   dataFrom:
     - find:
-        conversionStrategy: Default
-        decodingStrategy: None
-        nullBytePolicy: Ignore
         path: /velero
         name:
           regexp: .*

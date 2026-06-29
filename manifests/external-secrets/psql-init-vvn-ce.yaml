@@ -14,9 +14,6 @@ spec:
     creationPolicy: Owner
   dataFrom:
     - find:
-        conversionStrategy: Default
-        decodingStrategy: None
-        nullBytePolicy: Ignore
         path: /psql/vvn-ce
         name:
           regexp: .*
