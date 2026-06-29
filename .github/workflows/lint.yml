@@ -128,5 +128,6 @@ jobs:
             -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
             -ignore-filename-pattern 'values\.ya?ml$' \
             -ignore-filename-pattern '\.json$' \
+            -ignore-filename-pattern '^bootstrap/' \
             -summary \
             manifests/ apps/ bootstrap/
