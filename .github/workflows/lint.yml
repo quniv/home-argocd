@@ -11,7 +11,7 @@
 #                     resolved via the CRDs-catalog; anything still unknown is
 #                     skipped with --ignore-missing-schemas rather than failing.
 #
-# bootstrap/ and charts/webapp/values/ are linted alongside manifests/ and apps/.
+# bootstrap/ and charts/psql-init/values/ are linted alongside manifests/ and apps/.
 # charts/webapp/templates/ is excluded from yamllint (Helm Go templates are not
 # valid YAML) and from kubeconform (templates are not rendered k8s manifests).
 name: Lint
@@ -51,7 +51,7 @@ jobs:
         #   1. The fix PR is created with the correct diff.
         #   2. The yamllint step below runs on the fixed files and passes.
         if: github.event_name == 'pull_request'
-        run: yamlfix manifests/ apps/ bootstrap/ charts/webapp/values/
+        run: yamlfix manifests/ apps/ bootstrap/ charts/psql-init/values.yaml charts/psql-init/values/
 
       - name: Open fix PR if YAML was changed (PRs only)
         # If yamlfix modified any files, create-pull-request opens a new PR

@@ -1,17 +1,11 @@
 namespace: psql
 
-# Infisical path to pull DB_USER, DB_PASSWORD, DB_NAME from (dataFrom find)
-infisical:
-  path: ""
-  store: infisical
-  storeKind: ClusterSecretStore
-
 # Name of the k8s Secret ESO creates — also what the Job reads from
 secretName: ""
 
 # Admin credentials secret (created by the psql admin ExternalSecret)
 adminSecretName: psql-admin
-adminPasswordKey: postgres-password
+adminPasswordKey: postgres-password  # checkov:skip=CKV_SECRET_6:False positive — key name, not a secret value
 
 pgHost: psql-postgresql.psql.svc.cluster.local
 

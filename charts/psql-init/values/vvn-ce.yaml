@@ -1,4 +1,2 @@
-infisical:
-  path: /psql/vvn-ce
-
+namespace: vvn-ce
 secretName: psql-vvn-ce

@@ -1,0 +1,22 @@
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: psql-vvn-ce
+  namespace: vvn-ce
+spec:
+  refreshInterval: 1m
+  secretStoreRef:
+    name: infisical
+    kind: ClusterSecretStore
+  target:
+    name: psql-vvn-ce
+    creationPolicy: Owner
+  dataFrom:
+    - find:
+        conversionStrategy: Default
+        decodingStrategy: None
+        nullBytePolicy: Ignore
+        path: /psql/vvn-ce
+        name:
+          regexp: .*
