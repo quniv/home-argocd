@@ -16,7 +16,7 @@ spec:
         releaseName: psql
         values: |
           auth:
-            existingSecret: psql-admin-credentials
+            existingSecret: psql-admin
             secretKeys:
               adminPasswordKey: postgres-password
           primary:

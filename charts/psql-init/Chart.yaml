@@ -1,0 +1,7 @@
+apiVersion: v2
+name: psql-init
+description: >
+  Provisions a PostgreSQL user, database, and schema via a PostSync Job.
+  Pairs with an ExternalSecret that pulls DB_USER, DB_PASSWORD, DB_NAME from Infisical.
+type: application
+version: 0.1.0

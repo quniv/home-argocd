@@ -22,7 +22,7 @@ spec:
             mode: postgresql
           postgresql:
             auth:
-              existingSecret: docmost-postgresql-auth
+              existingSecret: docmost-psql-auth
           redis:
             enabled: true
             auth:
@@ -36,7 +36,7 @@ spec:
             enabled: false
           extraEnvFrom:
             - secretRef:
-                name: docmost-credentials
+                name: docmost-creds
     - repoURL: https://github.com/quniv/home-argocd.git
       targetRevision: HEAD
       path: manifests/docmost

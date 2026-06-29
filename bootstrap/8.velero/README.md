@@ -49,7 +49,7 @@ Go to the **home-cluster** project → **prod** environment and add:
 | `/velero/AWS_ACCESS_KEY_ID` | `terraform output aws_access_key_id` |
 | `/velero/AWS_SECRET_ACCESS_KEY` | `terraform output -raw aws_secret_access_key` |
 
-These feed the `velero-credentials` secret (velero namespace). Databasus takes
+These feed the `velero-creds` secret (velero namespace). Databasus takes
 the same credentials directly through its UI when adding the S3 storage
 destination (`terraform output bucket_name`, region `ap-southeast-1`).
 
