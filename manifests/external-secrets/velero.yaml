@@ -2,17 +2,15 @@
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
-  name: velero-credentials
+  name: velero-creds
   namespace: velero
-  annotations:
-    argocd.argoproj.io/sync-wave: '-1'
 spec:
   refreshInterval: 1m
   secretStoreRef:
     name: infisical
     kind: ClusterSecretStore
   target:
-    name: velero-credentials
+    name: velero-creds
     creationPolicy: Owner
     deletionPolicy: Retain
     template:

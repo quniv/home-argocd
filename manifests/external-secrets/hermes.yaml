@@ -2,23 +2,22 @@
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
-  name: psql-vvn-ce-credentials
-  namespace: psql
-  annotations:
-    argocd.argoproj.io/sync-wave: '-1'
+  name: hermes-creds
+  namespace: hermes
 spec:
   refreshInterval: 1m
   secretStoreRef:
     name: infisical
     kind: ClusterSecretStore
   target:
-    name: psql-vvn-ce-credentials
+    name: hermes-creds
     creationPolicy: Owner
+    deletionPolicy: Retain
   dataFrom:
     - find:
         conversionStrategy: Default
         decodingStrategy: None
         nullBytePolicy: Ignore
-        path: /psql/vvn-ce
+        path: /hermes
         name:
           regexp: .*

@@ -5,13 +5,14 @@
 # disabled because the repo follows the common convention of omitting "---"
 # from single-document files.
 #
-# charts/webapp/templates/ is excluded: Helm Go templates ({{ }}) are not
-# valid YAML and cannot be linted as-is. Values files in charts/ are plain
+# charts/*/templates/ directories are excluded: Helm Go templates ({{ }}) are
+# not valid YAML and cannot be linted as-is. Values files in charts/ are plain
 # YAML and are linted normally.
 extends: default
 
 ignore: |
   charts/webapp/templates
+  charts/psql-init/templates
 
 rules:
   line-length: disable

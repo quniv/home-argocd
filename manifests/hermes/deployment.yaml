@@ -69,7 +69,7 @@ spec:
               value: '1'
           envFrom:
             - secretRef:
-                name: hermes-credentials
+                name: hermes-creds
           volumeMounts:
             - name: data
               mountPath: /opt/data

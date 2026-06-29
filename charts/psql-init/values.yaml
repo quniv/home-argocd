@@ -1,0 +1,19 @@
+---
+namespace: psql
+
+# Name of the k8s Secret ESO creates — also what the Job reads from
+secretName: ''
+
+# Admin credentials secret (created by the psql admin ExternalSecret)
+adminSecretName: psql-admin
+adminPasswordKey: postgres-password  # checkov:skip=CKV_SECRET_6:False positive — key name, not a secret value
+pgHost: psql-postgresql.psql.svc.cluster.local
+image: postgres:17-alpine@sha256:979c4379dd698aba0b890599a6104e082035f98ef31d9b9291ec22f2b13059ca
+imagePullPolicy: IfNotPresent
+resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+  limits:
+    cpu: 100m
+    memory: 64Mi

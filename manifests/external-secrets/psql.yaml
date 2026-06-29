@@ -2,17 +2,15 @@
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
-  name: psql-admin-credentials
+  name: psql-admin
   namespace: psql
-  annotations:
-    argocd.argoproj.io/sync-wave: '-1'
 spec:
   refreshInterval: 1m
   secretStoreRef:
     name: infisical
     kind: ClusterSecretStore
   target:
-    name: psql-admin-credentials
+    name: psql-admin
     creationPolicy: Owner
   data:
     - secretKey: postgres-password  # checkov:skip=CKV_SECRET_6:False positive — this is an Infisical path reference, not an encoded secret value

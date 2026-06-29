@@ -33,7 +33,7 @@ spec:
               cpu: 500m
               memory: 512Mi
           credentials:
-            existingSecret: velero-credentials
+            existingSecret: velero-creds
 
           # Node-agent DaemonSet required for Kopia file-system volume backup
           deployNodeAgent: true
@@ -56,7 +56,7 @@ spec:
                 bucket: lacia-cluster-velero-backups
                 default: true
                 credential:
-                  name: velero-credentials
+                  name: velero-creds
                   key: cloud
                 config:
                   region: ap-southeast-1
@@ -79,9 +79,6 @@ spec:
                 defaultVolumesToFsBackup: true
                 storageLocation: default
                 ttl: 1344h0m0s  # 8 weeks
-    - repoURL: https://github.com/quniv/home-argocd.git
-      targetRevision: HEAD
-      path: manifests/velero
   destination:
     server: https://kubernetes.default.svc
     namespace: velero

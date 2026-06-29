@@ -2,17 +2,15 @@
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
-  name: docmost-credentials
+  name: docmost-creds
   namespace: docmost
-  annotations:
-    argocd.argoproj.io/sync-wave: '-1'
 spec:
   refreshInterval: 1h
   secretStoreRef:
     name: infisical
     kind: ClusterSecretStore
   target:
-    name: docmost-credentials
+    name: docmost-creds
     creationPolicy: Owner
     deletionPolicy: Retain
   data:
@@ -23,17 +21,15 @@ spec:
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
-  name: docmost-postgresql-auth
+  name: docmost-psql-auth
   namespace: docmost
-  annotations:
-    argocd.argoproj.io/sync-wave: '-1'
 spec:
   refreshInterval: 1h
   secretStoreRef:
     name: infisical
     kind: ClusterSecretStore
   target:
-    name: docmost-postgresql-auth
+    name: docmost-psql-auth
     creationPolicy: Owner
     deletionPolicy: Retain
   data:
@@ -49,8 +45,6 @@ kind: ExternalSecret
 metadata:
   name: docmost-redis-auth
   namespace: docmost
-  annotations:
-    argocd.argoproj.io/sync-wave: '-1'
 spec:
   refreshInterval: 1h
   secretStoreRef:

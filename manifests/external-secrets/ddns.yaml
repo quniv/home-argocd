@@ -4,8 +4,6 @@ kind: ExternalSecret
 metadata:
   name: cloudflare-ddns-secret
   namespace: ddns
-  annotations:
-    argocd.argoproj.io/sync-wave: '-1'
 spec:
   refreshInterval: 1m
   secretStoreRef:
