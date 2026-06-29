@@ -22,11 +22,11 @@ spec:
             mode: postgresql
           postgresql:
             auth:
-              existingSecret: docmost-db-auth
+              existingSecret: docmost-credentials
           redis:
             enabled: true
             auth:
-              existingSecret: docmost-db-auth
+              existingSecret: docmost-credentials
           storage:
             local:
               size: 5Gi
