@@ -21,7 +21,7 @@ spec:
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
-  name: docmost-psql-auth
+  name: docmost-psql
   namespace: docmost
 spec:
   refreshInterval: 1h
@@ -29,7 +29,7 @@ spec:
     name: infisical
     kind: ClusterSecretStore
   target:
-    name: docmost-psql-auth
+    name: docmost-psql
     creationPolicy: Owner
     deletionPolicy: Retain
   data:
@@ -43,7 +43,7 @@ spec:
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
-  name: docmost-redis-auth
+  name: docmost-redis
   namespace: docmost
 spec:
   refreshInterval: 1h
@@ -51,7 +51,7 @@ spec:
     name: infisical
     kind: ClusterSecretStore
   target:
-    name: docmost-redis-auth
+    name: docmost-redis
     creationPolicy: Owner
     deletionPolicy: Retain
   data:

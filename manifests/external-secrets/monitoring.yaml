@@ -87,7 +87,7 @@ spec:
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
-  name: grafana-admin-secret
+  name: grafana-admin
   namespace: monitoring
 spec:
   refreshInterval: 1m
@@ -95,7 +95,7 @@ spec:
     name: infisical
     kind: ClusterSecretStore
   target:
-    name: grafana-admin-secret
+    name: grafana-admin
     creationPolicy: Owner
     deletionPolicy: Retain
   data:

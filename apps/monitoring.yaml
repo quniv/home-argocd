@@ -24,7 +24,7 @@ spec:
             enabled: true
           grafana:
             admin:
-              existingSecret: grafana-admin-secret
+              existingSecret: grafana-admin
               userKey: admin-user
               passwordKey: admin-password
             persistence:
