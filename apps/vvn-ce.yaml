@@ -27,7 +27,7 @@ spec:
                   namespace: infra
                   sectionName: https
               hostnames:
-                - vocab.qtlab.dev
+                - vvn-ce-api.qtlab.dev
           crawler:
             enabled: false
     - repoURL: https://github.com/quniv/home-argocd.git
