@@ -12,14 +12,14 @@ spec:
   target:
     name: vvn-ce
     creationPolicy: Owner
+    template:
+      engineVersion: v2
+      data:
+        # checkov:skip=CKV_SECRET_6:False positive — connection string template, values come from ESO-fetched vars
+        DATABASE_URL: postgresql+asyncpg://{{ .DB_USER }}:{{ .DB_PASSWORD }}@psql-postgresql.psql.svc.cluster.local:5432/{{
+          .DB_NAME }}
+        OPENROUTER_API_KEY: '{{ .OPENROUTER_API_KEY }}'
   data:
-    - secretKey: DATABASE_URL
-      remoteRef:
-        key: /vvn-ce/DATABASE_URL
-        conversionStrategy: Default
-        decodingStrategy: None
-        metadataPolicy: None
-        nullBytePolicy: Ignore
     - secretKey: OPENROUTER_API_KEY
       remoteRef:
         key: /vvn-ce/OPENROUTER_API_KEY
@@ -27,3 +27,11 @@ spec:
         decodingStrategy: None
         metadataPolicy: None
         nullBytePolicy: Ignore
+  dataFrom:
+    - find:
+        conversionStrategy: Default
+        decodingStrategy: None
+        nullBytePolicy: Ignore
+        path: /psql/vvn-ce
+        name:
+          regexp: .*
