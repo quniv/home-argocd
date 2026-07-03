@@ -16,8 +16,9 @@ spec:
       engineVersion: v2
       data:
         # checkov:skip=CKV_SECRET_6:False positive — connection string template, values come from ESO-fetched vars
-        DATABASE_URL: postgresql+asyncpg://{{ .DB_USER }}:{{ .DB_PASSWORD }}@psql-postgresql.psql.svc.cluster.local:5432/{{ .DB_NAME }}
-        OPENROUTER_API_KEY: "{{ .OPENROUTER_API_KEY }}"
+        DATABASE_URL: postgresql+asyncpg://{{ .DB_USER }}:{{ .DB_PASSWORD }}@psql-postgresql.psql.svc.cluster.local:5432/{{
+          .DB_NAME }}
+        OPENROUTER_API_KEY: '{{ .OPENROUTER_API_KEY }}'
   data:
     - secretKey: OPENROUTER_API_KEY
       remoteRef:
