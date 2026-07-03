@@ -17,7 +17,7 @@ spec:
       data:
         # checkov:skip=CKV_SECRET_6:False positive — connection string template, values come from ESO-fetched vars
         # DB_USER/DB_PASSWORD are percent-encoded before insertion — Infisical values may contain
-        # URI-reserved characters (e.g. @, #) that would otherwise break URL parsing.
+        # URI-reserved characters (e.g. @,  #) that would otherwise break URL parsing.
         DATABASE_URL: |-
           {{- $u := .DB_USER | replace "%" "%25" | replace ":" "%3A" | replace "/" "%2F" | replace "?" "%3F" | replace "#" "%23" | replace "[" "%5B" | replace "]" "%5D" | replace "@" "%40" | replace " " "%20" -}}
           {{- $p := .DB_PASSWORD | replace "%" "%25" | replace ":" "%3A" | replace "/" "%2F" | replace "?" "%3F" | replace "#" "%23" | replace "[" "%5B" | replace "]" "%5D" | replace "@" "%40" | replace " " "%20" -}}
