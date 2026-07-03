@@ -9,7 +9,7 @@ metadata:
 spec:
   project: default
   sources:
-    - repoURL: oci://ghcr.io/quniv/charts
+    - repoURL: oci://ghcr.io/quniv/charts/vvn-ce
       chart: vvn-ce
       targetRevision: 0.0.0
       helm:
