@@ -22,6 +22,8 @@ spec:
             enabled: true
             image:
               tag: 0d3c2bf
+            config:
+              corsOrigins: '["*"]'
             httpRoute:
               enabled: true
               parentRefs:
