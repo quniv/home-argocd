@@ -20,6 +20,8 @@ spec:
             existingSecret: vvn-ce
           backend:
             enabled: true
+            image:
+              tag: 0d3c2bf
             httpRoute:
               enabled: true
               parentRefs:
