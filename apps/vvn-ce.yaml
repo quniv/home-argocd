@@ -39,7 +39,9 @@ spec:
       path: charts/psql-init
       helm:
         releaseName: vvn-ce
-        valueFiles: [values/vvn-ce.yaml]
+        values: |
+          secretName: vvn-ce-psql
+          dbSecretInfisicalPath: /psql/vvn-ce
   destination:
     server: https://kubernetes.default.svc
     namespace: vvn-ce
