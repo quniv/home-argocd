@@ -35,7 +35,7 @@ metadata:
     checkov.io/skip6: CKV_K8S_22=s6-overlay-needs-writable-run-emptydir-overlay-breaks-perms
 spec:
   # TEMPORARY: scaled to 0 — restore to 1 to bring hermes back up.
-  replicas: 0
+  replicas: 1
   # Recreate is required — Hermes has a non-concurrent write design; two pods
   # against the same PVC will corrupt state.
   strategy:
