@@ -1,0 +1,41 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: multica
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '2'
+spec:
+  project: default
+  sources:
+    - repoURL: ghcr.io/multica-ai/charts
+      chart: multica
+      targetRevision: 0.3.43
+      helm:
+        releaseName: multica
+        values: |
+          existingSecret: multica-secrets
+          postgres:
+            external:
+              enabled: true
+          backend:
+            config:
+              appUrl: https://multica.qtlab.dev
+              frontendOrigin: https://multica.qtlab.dev
+              corsAllowedOrigins: https://multica.qtlab.dev
+              googleRedirectUri: https://multica.qtlab.dev/auth/callback
+              localUploadBaseUrl: https://api.multica.qtlab.dev
+          ingress:
+            enabled: false
+    - repoURL: https://github.com/quniv/home-argocd.git
+      targetRevision: HEAD
+      path: manifests/multica
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: multica
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions: [CreateNamespace=true]
