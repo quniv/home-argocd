@@ -11,6 +11,8 @@ spec:
   sources:
     - repoURL: ghcr.io/quniv/charts
       chart: multica
+      # Watch releases at https://github.com/quniv/multica/releases;
+      # chart targetRevision updates are not covered by the current Dependabot config.
       targetRevision: 0.3.44
       helm:
         releaseName: multica
