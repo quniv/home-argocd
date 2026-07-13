@@ -33,6 +33,15 @@ spec:
           secretName: psql-vvn-ce
           dbSecretInfisicalPath: /psql/vvn-ce
           reflectionTargetNamespaces: vvn-ce
+    - repoURL: https://github.com/quniv/home-argocd.git
+      targetRevision: HEAD
+      path: charts/psql-init
+      helm:
+        releaseName: psql-init-multica
+        values: |
+          secretName: psql-multica
+          dbSecretInfisicalPath: /psql/multica
+          reflectionTargetNamespaces: multica
   destination:
     server: https://kubernetes.default.svc
     namespace: psql
