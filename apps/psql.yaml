@@ -28,7 +28,7 @@ spec:
       targetRevision: HEAD
       path: charts/psql-init
       helm:
-        releaseName: vvn-ce
+        releaseName: psql-init-vvn-ce
         values: |
           secretName: vvn-ce-psql
           dbSecretInfisicalPath: /psql/vvn-ce

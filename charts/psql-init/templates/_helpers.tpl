@@ -1,5 +1,5 @@
 {{/*
-Full name — the release name is the app identifier (e.g. "vvn-ce").
+Full name — releases use psql-init-<app> (e.g. "psql-init-vvn-ce").
 */}}
 {{- define "psql-init.fullname" -}}
 {{- .Release.Name | trunc 63 | trimSuffix "-" }}

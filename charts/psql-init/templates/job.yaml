@@ -2,7 +2,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: psql-init-{{ include "psql-init.fullname" . }}
+  name: {{ include "psql-init.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "psql-init.labels" . | nindent 4 }}
