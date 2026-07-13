@@ -40,10 +40,8 @@ spec:
             runAsNonRoot: true
             runAsUser: 1000
             runAsGroup: 1000
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
-            capabilities:
-              drop: [ALL]
+            allowPrivilegeEscalation: true
+            readOnlyRootFilesystem: false
           resources:
             requests:
               memory: 32Mi
@@ -141,10 +139,8 @@ spec:
             runAsNonRoot: true
             runAsUser: 1000
             runAsGroup: 1000
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
-            capabilities:
-              drop: [ALL]
+            allowPrivilegeEscalation: true
+            readOnlyRootFilesystem: false
       volumes:
         - name: openclaw-home
           persistentVolumeClaim:
