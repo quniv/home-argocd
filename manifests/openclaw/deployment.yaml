@@ -60,11 +60,7 @@ spec:
         - name: gateway
           image: ghcr.io/openclaw/openclaw:slim@sha256:3814fb1f62f9cfc5944de088c5817c68c88b5d721feebe36420b666a90a61ce7
           imagePullPolicy: IfNotPresent
-          command:
-            - node
-            - /app/dist/index.js
-            - gateway
-            - run
+          command: [node, /app/dist/index.js, gateway, run]
           ports:
             - name: gateway
               containerPort: 18789
