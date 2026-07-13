@@ -30,7 +30,7 @@ spec:
       helm:
         releaseName: psql-init-vvn-ce
         values: |
-          secretName: vvn-ce-psql
+          secretName: psql-vvn-ce
           dbSecretInfisicalPath: /psql/vvn-ce
           reflectionTargetNamespaces: vvn-ce
   destination:
