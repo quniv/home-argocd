@@ -1,0 +1,34 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: openclaw-http-redirect
+  namespace: openclaw
+spec:
+  parentRefs:
+    - name: external
+      namespace: infra
+      sectionName: http
+  hostnames: [openclaw.qtlab.dev]
+  rules:
+    - filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: openclaw
+  namespace: openclaw
+spec:
+  parentRefs:
+    - name: external
+      namespace: infra
+      sectionName: https
+  hostnames: [openclaw.qtlab.dev]
+  rules:
+    - backendRefs:
+        - name: openclaw
+          port: 18789
