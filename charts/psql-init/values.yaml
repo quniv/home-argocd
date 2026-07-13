@@ -1,8 +1,15 @@
 ---
-namespace: psql
-
 # Name of the k8s Secret ESO creates — also what the Job reads from
 secretName: ''
+
+# Infisical path holding the app's DB_USER/DB_PASSWORD/DB_NAME. When set, a local
+# copy of these keys is synced into the release namespace via ExternalSecret so the
+# Job doesn't depend on the app's own (different-namespace) ExternalSecret.
+dbSecretInfisicalPath: ''
+
+# Comma-separated namespace names or regular expressions. When set, Reflector
+# automatically mirrors the ESO-managed Secret into matching namespaces.
+reflectionTargetNamespaces: ''
 
 # Admin credentials secret (created by the psql admin ExternalSecret)
 adminSecretName: psql-admin

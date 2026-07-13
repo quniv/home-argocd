@@ -24,6 +24,15 @@ spec:
               enabled: true
               whenDeleted: Delete
               whenScaled: Retain
+    - repoURL: https://github.com/quniv/home-argocd.git
+      targetRevision: HEAD
+      path: charts/psql-init
+      helm:
+        releaseName: psql-init-vvn-ce
+        values: |
+          secretName: psql-vvn-ce
+          dbSecretInfisicalPath: /psql/vvn-ce
+          reflectionTargetNamespaces: vvn-ce
   destination:
     server: https://kubernetes.default.svc
     namespace: psql
