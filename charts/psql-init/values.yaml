@@ -9,6 +9,10 @@ secretName: ''
 # Job doesn't depend on the app's own (different-namespace) ExternalSecret.
 dbSecretInfisicalPath: ''
 
+# Comma-separated namespace names or regular expressions. When set, Reflector
+# automatically mirrors the ESO-managed Secret into matching namespaces.
+reflectionTargetNamespaces: ''
+
 # Admin credentials secret (created by the psql admin ExternalSecret)
 adminSecretName: psql-admin
 adminPasswordKey: postgres-password  # checkov:skip=CKV_SECRET_6:False positive — key name, not a secret value
