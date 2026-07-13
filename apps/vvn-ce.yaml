@@ -8,41 +8,32 @@ metadata:
     argocd.argoproj.io/sync-wave: '2'
 spec:
   project: default
-  sources:
-    - repoURL: oci://ghcr.io/quniv/charts/vvn-ce
-      chart: vvn-ce
-      targetRevision: 0.0.0
-      helm:
-        releaseName: vvn-ce
-        values: |
-          secret:
-            create: false
-            existingSecret: vvn-ce
-          backend:
+  source:
+    repoURL: oci://ghcr.io/quniv/charts/vvn-ce
+    chart: vvn-ce
+    targetRevision: 0.0.0
+    helm:
+      releaseName: vvn-ce
+      values: |
+        secret:
+          create: false
+          existingSecret: vvn-ce
+        backend:
+          enabled: true
+          image:
+            tag: 0d3c2bf
+          config:
+            corsOrigins: '["*"]'
+          httpRoute:
             enabled: true
-            image:
-              tag: 0d3c2bf
-            config:
-              corsOrigins: '["*"]'
-            httpRoute:
-              enabled: true
-              parentRefs:
-                - name: external
-                  namespace: infra
-                  sectionName: https
-              hostnames:
-                - vvn-ce-api.qtlab.dev
-          crawler:
-            enabled: false
-    - repoURL: https://github.com/quniv/home-argocd.git
-      targetRevision: HEAD
-      path: charts/psql-init
-      helm:
-        releaseName: vvn-ce
-        values: |
-          secretName: vvn-ce-psql
-          dbSecretInfisicalPath: /psql/vvn-ce
-          reflectionTargetNamespaces: vvn-ce
+            parentRefs:
+              - name: external
+                namespace: infra
+                sectionName: https
+            hostnames:
+              - vvn-ce-api.qtlab.dev
+        crawler:
+          enabled: false
   destination:
     server: https://kubernetes.default.svc
     namespace: vvn-ce
