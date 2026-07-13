@@ -9,9 +9,9 @@ metadata:
 spec:
   project: default
   sources:
-    - repoURL: ghcr.io/multica-ai/charts
+    - repoURL: ghcr.io/quniv/charts
       chart: multica
-      targetRevision: 0.3.43
+      targetRevision: 0.3.44
       helm:
         releaseName: multica
         values: |
@@ -28,6 +28,16 @@ spec:
               localUploadBaseUrl: https://api.multica.qtlab.dev
           ingress:
             enabled: false
+          gatewayAPI:
+            enabled: true
+            parentRefs:
+              - name: external
+                namespace: infra
+                sectionName: https
+            frontend:
+              hostnames: [multica.qtlab.dev]
+            backend:
+              hostnames: [api.multica.qtlab.dev]
     - repoURL: https://github.com/quniv/home-argocd.git
       targetRevision: HEAD
       path: manifests/multica
