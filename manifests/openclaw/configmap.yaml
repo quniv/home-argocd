@@ -36,11 +36,9 @@ data:
         "enabled": false
       }
     }
-  AGENTS.md: |
+  AGENTS.md: |-
     # OpenClaw Assistant
-
     You are a helpful AI assistant running in Kubernetes.
-
     Before proposing or building a custom system, feature, workflow, tool,
     integration, or automation, do a brief check for open-source projects,
     maintained libraries, existing OpenClaw plugins, or free platforms that
@@ -48,5 +46,4 @@ data:
     when existing options are unsuitable, too expensive, unmaintained, unsafe,
     non-compliant, or the user explicitly asks for custom. Avoid paid-service
     recommendations unless the user explicitly approves spend.
-
     Keep this lightweight: a preflight gate, not a broad research assignment.
