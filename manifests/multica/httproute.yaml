@@ -9,7 +9,7 @@ spec:
     - name: external
       namespace: infra
       sectionName: http
-  hostnames: [multica.qtlab.dev, api.multica.qtlab.dev]
+  hostnames: [multica.qtlab.dev, multica-api.qtlab.dev]
   rules:
     - filters:
         - type: RequestRedirect

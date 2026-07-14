@@ -32,7 +32,7 @@ spec:
               frontendOrigin: https://multica.qtlab.dev
               corsAllowedOrigins: https://multica.qtlab.dev
               googleRedirectUri: https://multica.qtlab.dev/auth/callback
-              localUploadBaseUrl: https://api.multica.qtlab.dev
+              localUploadBaseUrl: https://multica-api.qtlab.dev
           ingress:
             enabled: false
           gatewayAPI:
@@ -44,7 +44,7 @@ spec:
             frontend:
               hostnames: [multica.qtlab.dev]
             backend:
-              hostnames: [api.multica.qtlab.dev]
+              hostnames: [multica-api.qtlab.dev]
     - repoURL: https://github.com/quniv/home-argocd.git
       targetRevision: HEAD
       path: manifests/multica
