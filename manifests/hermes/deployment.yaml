@@ -53,39 +53,6 @@ spec:
         fsGroup: 10000
         seccompProfile:
           type: RuntimeDefault
-      initContainers:
-        - name: install-multica
-          image: nousresearch/hermes-agent@sha256:132e6ca17b1229ce316fd4f43a99aae6e866807dca9c0be11e9d21ae9fb51ebf
-          imagePullPolicy: IfNotPresent
-          command: [/bin/sh, -c]
-          args:
-            - |
-              set -eu
-              archive=/opt/multica-bin/multica.tar.gz
-              curl -fsSL --retry 3 \
-                -o "$archive" \
-                https://github.com/multica-ai/multica/releases/download/v0.4.0/multica-cli-0.4.0-linux-amd64.tar.gz
-              echo '40a3d84f7e656da836cd3d04df2df8dbf06a83b28fab135838fc66c406cba492  /opt/multica-bin/multica.tar.gz' \
-                | sha256sum -c -
-              tar -xzf "$archive" -C /opt/multica-bin multica
-              rm "$archive"
-              chmod 0755 /opt/multica-bin/multica
-          securityContext:
-            runAsNonRoot: false
-            runAsUser: 0
-            runAsGroup: 0
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
-          resources:
-            requests:
-              cpu: 25m
-              memory: 32Mi
-            limits:
-              cpu: 250m
-              memory: 128Mi
-          volumeMounts:
-            - name: multica-bin
-              mountPath: /opt/multica-bin
       containers:
         - name: hermes
           image: nousresearch/hermes-agent@sha256:132e6ca17b1229ce316fd4f43a99aae6e866807dca9c0be11e9d21ae9fb51ebf
@@ -101,6 +68,8 @@ spec:
           env:
             - name: HERMES_DASHBOARD
               value: '1'
+            - name: MULTICA_WORKSPACES_ROOT
+              value: /opt/data/multica_workspaces
           envFrom:
             - secretRef:
                 name: hermes-creds
@@ -129,55 +98,6 @@ spec:
               port: api
             initialDelaySeconds: 15
             periodSeconds: 10
-        - name: multica-daemon
-          image: nousresearch/hermes-agent@sha256:132e6ca17b1229ce316fd4f43a99aae6e866807dca9c0be11e9d21ae9fb51ebf
-          imagePullPolicy: IfNotPresent
-          command: [/bin/sh, -c]
-          args:
-            - |
-              set -eu
-              mkdir -p "$HOME/.multica" "$MULTICA_WORKSPACES_ROOT"
-              multica config set server_url "$MULTICA_SERVER_URL"
-              multica config set app_url "$MULTICA_APP_URL"
-              multica login --token "$MULTICA_TOKEN"
-              exec multica daemon start --foreground --no-auto-update
-          env:
-            - name: HOME
-              value: /opt/data/home
-            - name: PATH
-              value: /opt/multica-bin:/opt/hermes/bin:/opt/hermes/.venv/bin:/opt/data/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-            - name: MULTICA_SERVER_URL
-              value: https://api.multica.qtlab.dev
-            - name: MULTICA_APP_URL
-              value: https://multica.qtlab.dev
-            - name: MULTICA_WORKSPACES_ROOT
-              value: /opt/data/multica_workspaces
-            - name: MULTICA_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: multica-daemon-creds
-                  key: MULTICA_TOKEN
-          securityContext:
-            runAsNonRoot: true
-            runAsUser: 10000
-            runAsGroup: 10000
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
-          resources:
-            requests:
-              cpu: 100m
-              memory: 256Mi
-            limits:
-              cpu: '1'
-              memory: 2Gi
-          volumeMounts:
-            - name: data
-              mountPath: /opt/data
-            - name: multica-bin
-              mountPath: /opt/multica-bin
-              readOnly: true
-            - name: multica-tmp
-              mountPath: /tmp
       volumes:
         - name: data
           persistentVolumeClaim:
@@ -185,9 +105,4 @@ spec:
         - name: dshm
           emptyDir:
             medium: Memory
-            sizeLimit: 1Gi
-        - name: multica-bin
-          emptyDir: {}
-        - name: multica-tmp
-          emptyDir:
             sizeLimit: 1Gi

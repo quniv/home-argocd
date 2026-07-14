@@ -1,78 +1,84 @@
 # Hermes Multica Daemon
 
-The Hermes pod runs the Multica daemon as the same `hermes` identity used by
-the Hermes gateway (`UID:GID 10000:10000`). Both processes share the
-`hermes-data` PVC, so Multica workspaces remain writable and survive pod
-replacement.
+Multica is installed and authenticated manually in the Hermes pod. GitOps only
+defines a persistent workspace root on the `hermes-data` PVC:
+
+```text
+/opt/data/multica_workspaces
+```
+
+The Multica daemon must run as the `hermes` user (`UID:GID 10000:10000`). Running
+it as root creates root-owned worktrees that the Hermes gateway cannot modify.
 
 ```mermaid
 flowchart LR
-    ESO[External Secrets Operator] -->|MULTICA_TOKEN| Secret[multica-daemon-creds]
-    Init[install-multica init container] -->|verified v0.4.0 binary| Bin[emptyDir: multica-bin]
-    Secret --> Daemon[Multica daemon UID 10000]
-    Bin --> Daemon
-    Daemon --> Workspace[/opt/data/multica_workspaces]
-    Hermes[Hermes gateway UID 10000] --> Workspace
-    Workspace --> PVC[(hermes-data PVC)]
+    Operator[Manual Multica install and login]
+    Daemon[Multica daemon UID 10000]
+    Hermes[Hermes gateway UID 10000]
+    Workspace[/opt/data/multica_workspaces]
+    PVC[(hermes-data PVC)]
+
+    Operator --> Daemon
+    Daemon --> Workspace
+    Hermes --> Workspace
+    Workspace --> PVC
 ```
 
-## Prerequisite
+## Install and start
 
-Create a Multica personal access token, then store it in Infisical at:
+Install the Multica binary under `/opt/data/.local/bin`, which is already on the
+image `PATH` and persists on the PVC. Do not install it under `/usr/local/bin`,
+because that path is lost when Kubernetes replaces the pod.
 
-```text
-/hermes/MULTICA_TOKEN
-```
-
-Use a `mul_...` user PAT or an `mcn_...` Cloud Node PAT. Never commit the token
-to this repository. ESO publishes it as the `multica-daemon-creds` Kubernetes
-Secret in the `hermes` namespace.
-
-## Runtime layout
-
-- Multica version: `0.4.0`, pinned by release URL and SHA-256 checksum.
-- Multica home: `/opt/data/home`.
-- Workspace root: `/opt/data/multica_workspaces`.
-- Process identity: `10000:10000`.
-- Automatic CLI updates: disabled; update the pinned version and checksum in
-  `manifests/hermes/deployment.yaml` through Git review.
-
-The installer downloads the official Linux AMD64 release archive during pod
-initialization. The pod therefore needs outbound HTTPS access to GitHub
-releases whenever it is created.
-
-## Rollout verification
-
-After ArgoCD syncs the application, verify ESO and the pod:
-
-```bash
-kubectl get externalsecret -n hermes multica-daemon-creds
-kubectl get secret -n hermes multica-daemon-creds
-kubectl rollout status -n hermes deployment/hermes
-kubectl get pods -n hermes -l app=hermes
-```
-
-Inspect the installer and daemon without printing the Secret:
+Run installation, login, and daemon commands as the `hermes` user with a
+persistent home:
 
 ```bash
 POD="$(kubectl get pods -n hermes -l app=hermes \
   -o jsonpath='{.items[0].metadata.name}')"
 
-kubectl logs -n hermes "$POD" -c install-multica
-kubectl logs -n hermes "$POD" -c multica-daemon
-kubectl exec -n hermes "$POD" -c multica-daemon -- id
-kubectl exec -n hermes "$POD" -c multica-daemon -- \
-  multica daemon status
-kubectl exec -n hermes "$POD" -c multica-daemon -- \
-  stat -c '%A %a %u:%g %n' /opt/data/multica_workspaces
+kubectl exec -it -n hermes "$POD" -- sh
 ```
 
-The daemon and workspace should both report UID/GID `10000:10000`. Retry or
-recreate tasks that reference the old `/root/multica_workspaces` path; existing
-ACP sessions retain their original absolute working directory.
+Inside the pod, switch to the Hermes identity:
 
-## Rollback
+```sh
+su hermes -s /bin/sh
+export HOME=/opt/data/home
+export MULTICA_WORKSPACES_ROOT=/opt/data/multica_workspaces
+mkdir -p "$HOME" "$MULTICA_WORKSPACES_ROOT" /opt/data/.local/bin
+```
 
-Revert the Deployment and ExternalSecret changes, then sync the Hermes ArgoCD
-application. Removing the sidecar stops the GitOps-managed daemon but leaves
-its configuration and workspaces on the PVC under `/opt/data`.
+Install Multica into `/opt/data/.local/bin`, then authenticate and start it:
+
+```sh
+multica config set server_url https://api.multica.qtlab.dev
+multica config set app_url https://multica.qtlab.dev
+multica login
+multica daemon start
+multica daemon status
+```
+
+The GitOps-provided `MULTICA_WORKSPACES_ROOT` environment variable is inherited
+by commands executed in the container. Export it explicitly as shown above when
+using `su`, because `su` environment preservation differs between implementations.
+
+## Verify ownership
+
+```sh
+id
+stat -c '%A %a %u:%g %n' /opt/data/multica_workspaces
+find /opt/data/multica_workspaces -maxdepth 3 \
+  -printf '%M %u:%g %p\n' | head -n 50
+```
+
+The daemon, workspace root, and newly created task directories should report
+UID/GID `10000:10000`. Retry or recreate tasks that reference the old
+`/root/multica_workspaces` path; existing ACP sessions retain their original
+absolute working directory.
+
+## Pod replacement
+
+The binary and Multica configuration persist under `/opt/data`, but the daemon
+process does not. After Kubernetes replaces the Hermes pod, start the daemon
+again manually as the `hermes` user.
