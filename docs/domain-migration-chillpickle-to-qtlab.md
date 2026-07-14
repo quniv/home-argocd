@@ -18,8 +18,8 @@
 
 - [ ] Update `bootstrap/4.cert-manager/certificate.yml`: `dnsNames: ['*.qtlab.dev']`
 - [ ] Apply: `kubectl apply -f bootstrap/4.cert-manager/certificate.yml`
-- [ ] Watch issuance: `kubectl get certificate tls-cert -n infra -w`
-- [ ] Confirm secret renewed: `kubectl get secret tls-cert -n infra`
+- [ ] Watch issuance: `kubectl get certificate tls-cert -n cert-manager -w`
+- [ ] Confirm secret renewed: `kubectl get secret tls-cert -n cert-manager`
 
 ---
 
