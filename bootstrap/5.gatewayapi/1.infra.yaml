@@ -1,22 +1,8 @@
 ---
-# ns
 apiVersion: v1
 kind: Namespace
 metadata:
   name: infra
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: wildcard-tls
-  namespace: infra
-spec:
-  secretName: wildcard-tls
-  usages: [digital signature, key encipherment]
-  dnsNames: ['*.qtlab.dev', '*.multica.qtlab.dev']
-  issuerRef:
-    name: letsencrypt
-    kind: ClusterIssuer
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
@@ -44,7 +30,7 @@ spec:
         mode: Terminate
         certificateRefs:
           - kind: Secret
-            name: wildcard-tls
+            name: tls-cert
       allowedRoutes:
         namespaces:
           from: All

@@ -8,12 +8,22 @@ metadata:
     argocd.argoproj.io/sync-wave: '1'
 spec:
   project: default
-  source:
-    repoURL: https://github.com/quniv/home-argocd.git
-    targetRevision: HEAD
-    path: manifests/infra
-    directory:
-      recurse: true
+  sources:
+    - repoURL: https://github.com/quniv/home-argocd.git
+      targetRevision: HEAD
+      path: manifests/infra
+      directory:
+        recurse: true
+    - repoURL: https://github.com/quniv/home-argocd.git
+      targetRevision: HEAD
+      path: bootstrap/4.cert-manager
+      directory:
+        include: certificate.yml
+    - repoURL: https://github.com/quniv/home-argocd.git
+      targetRevision: HEAD
+      path: bootstrap/5.gatewayapi
+      directory:
+        include: 1.infra.yaml
   destination:
     server: https://kubernetes.default.svc
   syncPolicy:

@@ -7,7 +7,7 @@ One-time setup steps to bring up the lacia-cluster from scratch. Run in order.
 | `1.cluster/` | Vagrant VMs + kubeadm cluster init |
 | `2.cilium/` | Cilium CNI, L2 announcements, LoadBalancer IP pool |
 | `3.ddns/` | Cloudflare DDNS to keep the home IP updated |
-| `4.cert-manager/` | cert-manager + Let's Encrypt wildcard cert for `*.chillpickle.org` |
+| `4.cert-manager/` | cert-manager + default wildcard cert for `*.qtlab.dev` and `*.multica.qtlab.dev` |
 | `5.gatewayapi/` | `infra` namespace, Cilium Gateway `external`, TLS termination |
 | `6.argocd/` | ArgoCD install + hand off to GitOps |
 
@@ -28,3 +28,6 @@ Then apply the root ArgoCD app — it takes over from here:
 ```bash
 kubectl apply -f ../apps/root.yaml
 ```
+
+The `infra` Application subsequently adopts and reconciles the Certificate and
+Gateway files that were applied during bootstrap.

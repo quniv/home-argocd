@@ -11,7 +11,7 @@ GitOps repo for the **lacia-cluster** (home Kubernetes cluster). Uses ArgoCD App
 ```
 apps/root.yaml              ← applied manually once; watches apps/ dir
   ├── apps/eso.yml              → Bitnami external-secrets Helm chart  (no wave)
-  ├── apps/infrastructure.yaml  → manifests/infrastructure/            (sync-wave 1)
+  ├── apps/infra.yaml           → manifests/infra/ + TLS bootstrap files (sync-wave 1)
   ├── apps/vvn-ce-infra.yaml    → manifests/vvn-ce/                   (sync-wave 2)
   ├── apps/vvn-ce-backend.yaml  → charts/webapp + values/vvn-ce.yaml  (sync-wave 2)
   ├── apps/vvn-ce-postgresql.yaml → Bitnami postgresql Helm chart     (sync-wave 2)
@@ -20,15 +20,19 @@ apps/root.yaml              ← applied manually once; watches apps/ dir
 
 **Secrets flow:** Infisical → ESO `ClusterSecretStore` (`infisical`, project `home-cluster`, env `prod`) → `ExternalSecret` CRDs → native k8s Secrets. The only manual secret is `infisical-auth` in `external-secrets` namespace (Infisical Machine Identity credentials).
 
-**Cluster ingress:** Cilium Gateway API. A single `Gateway` named `external` in namespace `infra` terminates TLS (wildcard cert `*.qtlab.dev`). `HTTPRoute` resources in any namespace attach to it.
+**Cluster ingress:** Cilium Gateway API. A single `Gateway` named `external` in
+namespace `infra` terminates TLS with `infra/tls-cert`, which Reflector mirrors
+from the default Certificate Secret in `cert-manager`. `HTTPRoute` resources in
+any namespace attach to the Gateway and do not need local TLS Secret copies.
 
 ## Namespace layout
 
 | Namespace | Purpose |
 |---|---|
 | `argocd` | ArgoCD itself |
+| `cert-manager` | cert-manager and the source `tls-cert` Certificate/Secret |
 | `external-secrets` | ESO operator + `infisical-auth` secret |
-| `infra` | Gateway `external`, wildcard TLS cert |
+| `infra` | Gateway `external`, reflected `tls-cert` Secret |
 | `vvn` | vvn-ce app (backend, postgres, redis, crawler) |
 
 ## Cluster network
@@ -107,7 +111,7 @@ The `bootstrap/` directory maps to ordered steps:
 1.cluster/    — Vagrant + kubeadm (3-node: cp-node 192.168.122.10, worker-1, worker-2)
 2.cilium/     — Cilium CNI (helm install -f values.yaml), then apply l2.yml + pools.yml
 3.ddns/       — Cloudflare DDNS deployment (reads bootstrap/.env for token + zone)
-4.cert-manager/ — cert-manager helm + ClusterIssuer + wildcard Certificate
+4.cert-manager/ — cert-manager helm + ClusterIssuer + default Certificate
 5.gatewayapi/ — infra namespace, Gateway `external`, demo HTTPRoute
 6.argocd/     — ArgoCD helm install, then hand off with kubectl apply -f apps/root.yaml
 7.infisical/  — seed infisical-auth secret; ESO can then pull from Infisical
