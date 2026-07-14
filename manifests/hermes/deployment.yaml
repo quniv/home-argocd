@@ -68,6 +68,8 @@ spec:
           env:
             - name: HERMES_DASHBOARD
               value: '1'
+            - name: MULTICA_WORKSPACES_ROOT
+              value: /opt/data/multica_workspaces
           envFrom:
             - secretRef:
                 name: hermes-creds
