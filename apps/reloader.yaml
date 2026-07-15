@@ -19,6 +19,14 @@ spec:
           watchGlobally: true
           readOnlyRootFileSystem: true
           reloadOnCreate: true
+          deployment:
+            resources:
+              requests:
+                cpu: 10m
+                memory: 128Mi
+              limits:
+                cpu: 150m
+                memory: 512Mi
   destination:
     server: https://kubernetes.default.svc
     namespace: reloader
