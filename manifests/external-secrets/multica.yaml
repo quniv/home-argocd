@@ -4,8 +4,6 @@ kind: ExternalSecret
 metadata:
   name: multica-secrets
   namespace: multica
-  annotations:
-    argocd.argoproj.io/sync-wave: '-1'
 spec:
   refreshInterval: 1m
   secretStoreRef:
@@ -23,8 +21,40 @@ spec:
           {{- $u := .DB_USER | replace "%" "%25" | replace ":" "%3A" | replace "/" "%2F" | replace "?" "%3F" | replace "#" "%23" | replace "[" "%5B" | replace "]" "%5D" | replace "@" "%40" | replace " " "%20" -}}
           {{- $p := .DB_PASSWORD | replace "%" "%25" | replace ":" "%3A" | replace "/" "%2F" | replace "?" "%3F" | replace "#" "%23" | replace "[" "%5B" | replace "]" "%5D" | replace "@" "%40" | replace " " "%20" -}}
           postgres://{{ $u }}:{{ $p }}@psql-postgresql.psql.svc.cluster.local:5432/{{ .DB_NAME }}?sslmode=disable
+        GITHUB_APP_ID: '{{ .GITHUB_APP_ID }}'
+        GITHUB_APP_PRIVATE_KEY: '{{ .GITHUB_APP_PRIVATE_KEY }}'
+        GITHUB_APP_SLUG: '{{ .GITHUB_APP_SLUG }}'
+        GITHUB_WEBHOOK_SECRET: '{{ .GITHUB_WEBHOOK_SECRET }}'
         JWT_SECRET: '{{ .JWT_SECRET }}'
   data:
+    - secretKey: GITHUB_APP_ID
+      remoteRef:
+        key: /multica/GITHUB_APP_ID
+        conversionStrategy: Default
+        decodingStrategy: None
+        metadataPolicy: None
+        nullBytePolicy: Ignore
+    - secretKey: GITHUB_APP_PRIVATE_KEY
+      remoteRef:
+        key: /multica/GITHUB_APP_PRIVATE_KEY
+        conversionStrategy: Default
+        decodingStrategy: None
+        metadataPolicy: None
+        nullBytePolicy: Ignore
+    - secretKey: GITHUB_APP_SLUG
+      remoteRef:
+        key: /multica/GITHUB_APP_SLUG
+        conversionStrategy: Default
+        decodingStrategy: None
+        metadataPolicy: None
+        nullBytePolicy: Ignore
+    - secretKey: GITHUB_WEBHOOK_SECRET
+      remoteRef:
+        key: /multica/GITHUB_WEBHOOK_SECRET
+        conversionStrategy: Default
+        decodingStrategy: None
+        metadataPolicy: None
+        nullBytePolicy: Ignore
     - secretKey: JWT_SECRET
       remoteRef:
         key: /multica/JWT_SECRET
