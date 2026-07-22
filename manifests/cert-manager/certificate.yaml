@@ -1,0 +1,19 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: tls-cert
+  namespace: cert-manager
+spec:
+  secretName: tls-cert
+  secretTemplate:
+    annotations:
+      reflector.v1.k8s.emberstack.com/reflection-allowed: 'true'
+      reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: infra
+      reflector.v1.k8s.emberstack.com/reflection-auto-enabled: 'true'
+      reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: infra
+  usages: [digital signature, key encipherment]
+  dnsNames: ['*.qtlab.dev', '*.multica.qtlab.dev']
+  issuerRef:
+    name: letsencrypt
+    kind: ClusterIssuer

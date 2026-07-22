@@ -11,12 +11,10 @@ helm install cert-manager jetstack/cert-manager \
   --set installCRDs=true
 ```
 
-Then apply in order:
+The Cloudflare token Secret remains a one-time bootstrap step:
 
 ```bash
-kubectl apply -f secrets.yml       # Cloudflare API token secret
-kubectl apply -f clusterissuer.yml # Let's Encrypt ClusterIssuer (DNS-01)
-kubectl apply -f certificate.yml   # default wildcard cert → cert-manager/tls-cert
+kubectl apply -f secrets.yml # Cloudflare API token secret
 ```
 
 The generated `tls-cert` Secret is the single source of truth. Its annotations
@@ -30,5 +28,5 @@ Reflector is deployed by `apps/reflector.yaml`. During a fresh bootstrap, the
 Gateway remains unready until ArgoCD installs Reflector and the `infra/tls-cert`
 mirror appears.
 
-After ArgoCD is installed, `apps/infra.yaml` continuously reconciles this same
-bootstrap Certificate manifest as a narrowly included Git source.
+After ArgoCD is installed, `apps/cert-manager.yaml` manages the Jetstack chart
+and the ClusterIssuer/Certificate manifests in `manifests/cert-manager`.

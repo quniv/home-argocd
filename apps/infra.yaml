@@ -16,11 +16,6 @@ spec:
         recurse: true
     - repoURL: https://github.com/quniv/home-argocd.git
       targetRevision: HEAD
-      path: bootstrap/4.cert-manager
-      directory:
-        include: certificate.yml
-    - repoURL: https://github.com/quniv/home-argocd.git
-      targetRevision: HEAD
       path: bootstrap/5.gatewayapi
       directory:
         include: 1.infra.yaml
