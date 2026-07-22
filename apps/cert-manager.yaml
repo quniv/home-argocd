@@ -1,0 +1,31 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager
+  namespace: argocd
+  annotations:
+    # The Certificate and ClusterIssuer are consumed by the infra application.
+    argocd.argoproj.io/sync-wave: '0'
+spec:
+  project: default
+  sources:
+    - chart: cert-manager
+      repoURL: https://charts.jetstack.io
+      targetRevision: 1.21.0
+      helm:
+        releaseName: cert-manager
+        values: |
+          crds:
+            enabled: true
+    - repoURL: https://github.com/quniv/home-argocd.git
+      targetRevision: HEAD
+      path: manifests/cert-manager
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cert-manager
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions: [CreateNamespace=true, ServerSideApply=true]
