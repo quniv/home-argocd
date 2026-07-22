@@ -30,10 +30,25 @@ this avoids revocable long-lived Secret tokens.
    KUBECONFIG=./agent-kubeconfig.yaml kubectl auth can-i get secrets -A
    # Expected: no
    ```
-4. Store the file only in an approved secret manager/runtime secret channel.
-   Do **not** commit it, upload it to a Multica issue, paste it into chat, or
-   email it. The receiving runtime should expose it as a file with mode `0600`
-   and set `KUBECONFIG` to that path.
+4. Give it to this DevOps agent through its audited Multica environment store,
+   not through an issue attachment, chat, email, or Git. On the same trusted
+   workstation, create a mode-`0600` JSON envelope and set it as the agent's
+   custom environment:
+
+   ```bash
+   umask 077
+   base64 -w 0 ./agent-kubeconfig.yaml \
+     | jq -R '{KUBECONFIG_B64: .}' > ./devops-agent-env.json
+   multica agent env set 150a59dd-a8dd-4efa-ae72-33d80e92c246 \
+     --custom-env-file ./devops-agent-env.json
+   rm ./devops-agent-env.json ./agent-kubeconfig.yaml
+   ```
+
+   This is an owner/admin-only, audited operation. The agent receives the
+   value as `KUBECONFIG_B64` and writes a mode-`0600` temporary kubeconfig only
+   while a Kubernetes task is running. Rotate it by rerunning this process;
+   replacing `custom_env` replaces the complete environment map, so preserve
+   any future existing keys with the documented `"****"` placeholder.
 
 ## Revocation and elevation
 
