@@ -5,7 +5,7 @@ set -euo pipefail
 
 namespace="${NAMESPACE:-infra}"
 service_account="${SERVICE_ACCOUNT:-agent-kubeconfig}"
-duration="${TOKEN_DURATION:-1h}"
+duration="${TOKEN_DURATION:-24h}"
 output="${1:-./agent-kubeconfig.yaml}"
 
 if [ -e "$output" ]; then

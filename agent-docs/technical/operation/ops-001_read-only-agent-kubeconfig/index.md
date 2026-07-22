@@ -16,14 +16,14 @@ The repository never contains a bearer token or kubeconfig. Kubernetes 1.24+ Ser
 
 ## Generate and verify the kubeconfig
 
-1. Check out the merged revision and generate a one-hour kubeconfig.
+1. Check out the merged revision and generate a 24-hour kubeconfig.
 
    ```bash
    git checkout <merged-revision>
    ./scripts/create-agent-kubeconfig.sh ./agent-kubeconfig.yaml
    ```
 
-   Set `TOKEN_DURATION=8h` only for a short, supervised session. The API server can impose a lower maximum.
+   Set `TOKEN_DURATION=8h` for a shorter, supervised session. The API server can impose a lower maximum than the 24-hour default.
 
 2. Verify that workload reads work and Secret reads are denied.
 
