@@ -1,0 +1,44 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", "docker:pinDigests"],
+  "enabledManagers": ["kubernetes"],
+  "draftPR": true,
+  "schedule": ["before 06:00 on Tuesday"],
+  "prConcurrentLimit": 3,
+  "prHourlyLimit": 1,
+  "labels": ["dependencies", "container-image", "gitops"],
+  "automerge": false,
+  "separateMajorMinor": true,
+  "packageRules": [
+    {
+      "description": "Start with an explicit allow-list; add images deliberately.",
+      "matchManagers": ["kubernetes"],
+      "enabled": false
+    },
+    {
+      "description": "OpenClaw: versioned stable slim images only.",
+      "matchManagers": ["kubernetes"],
+      "matchFileNames": ["manifests/openclaw/deployment.yaml"],
+      "matchPackageNames": ["ghcr.io/openclaw/openclaw"],
+      "allowedVersions": "/^\\d{4}\\.\\d+\\.\\d+(?:-\\d+)?-slim$/",
+      "versioning": "loose",
+      "enabled": true,
+      "addLabels": ["openclaw"]
+    },
+    {
+      "description": "Hermes: versioned stable images only.",
+      "matchManagers": ["kubernetes"],
+      "matchFileNames": ["manifests/hermes/deployment.yaml"],
+      "matchPackageNames": ["nousresearch/hermes-agent"],
+      "allowedVersions": "/^v\\d{4}\\.\\d+\\.\\d+(?:\\.\\d+)?$/",
+      "versioning": "loose",
+      "enabled": true,
+      "addLabels": ["hermes"]
+    },
+    {
+      "description": "Year-rollover updates require an explicit dashboard approval.",
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true
+    }
+  ]
+}
