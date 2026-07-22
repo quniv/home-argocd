@@ -1,7 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended", "docker:pinDigests"],
-  "enabledManagers": ["kubernetes"],
+  "enabledManagers": ["argocd", "helm-values", "kubernetes"],
   "draftPR": true,
   "schedule": ["before 06:00 on Tuesday"],
   "prConcurrentLimit": 3,
@@ -9,12 +9,13 @@
   "labels": ["dependencies", "container-image", "gitops"],
   "automerge": false,
   "separateMajorMinor": true,
+  "argocd": {
+    "managerFilePatterns": ["/^apps\\/.+\\.ya?ml$/"]
+  },
+  "kubernetes": {
+    "managerFilePatterns": ["/(^|/)(manifests|bootstrap)\\/.+\\.ya?ml$/"]
+  },
   "packageRules": [
-    {
-      "description": "Start with an explicit allow-list; add images deliberately.",
-      "matchManagers": ["kubernetes"],
-      "enabled": false
-    },
     {
       "description": "OpenClaw: versioned stable slim images only.",
       "matchManagers": ["kubernetes"],
