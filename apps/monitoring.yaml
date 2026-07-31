@@ -88,4 +88,7 @@ spec:
       prune: true
       selfHeal: true
     # Validate=false permits the narrow SSA replica patch in manifests/monitoring.
-    syncOptions: [CreateNamespace=true, ServerSideApply=true, Validate=false]
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+      - Validate=false
