@@ -1,0 +1,13 @@
+---
+# Temporary shutdown override for chart version 86.2.0, whose operator
+# Deployment hard-codes replicas: 1 and has no Helm value for that field.
+# This is intentionally a server-side-apply partial manifest. It is the second
+# Application source, so it overrides the chart's resource without copying its
+# full Pod template. Restore by changing replicas to 1 or deleting this file.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kube-prometheus-stack-operator
+  namespace: monitoring
+spec:
+  replicas: 0

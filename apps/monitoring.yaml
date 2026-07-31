@@ -23,6 +23,10 @@ spec:
           kubeScheduler:
             enabled: true
           grafana:
+            # Temporary shutdown: Grafana has no HPA and is held at zero.
+            replicas: 0
+            autoscaling:
+              enabled: false
             admin:
               existingSecret: grafana-admin
               userKey: admin-user
@@ -38,6 +42,8 @@ spec:
                 memory: 512Mi
           prometheus:
             prometheusSpec:
+              # Original: 1 replica. Restore to 1 when the shutdown ends.
+              replicas: 0
               retention: 30d
               retentionSize: 5GiB
               storageSpec: {}
@@ -50,6 +56,8 @@ spec:
                   memory: 1Gi
           alertmanager:
             alertmanagerSpec:
+              # Original: 1 replica. Restore to 1 when the shutdown ends.
+              replicas: 0
               retention: 24h
               storage: {}
               # configSecret replaces the Helm-generated alertmanager config entirely.
@@ -62,6 +70,13 @@ spec:
                 limits:
                   cpu: 100m
                   memory: 128Mi
+          # Original: enabled with 1 replica. The subchart has no HPA.
+          kube-state-metrics:
+            replicas: 0
+          # DaemonSets cannot be scaled with replicas; remove node-exporter
+          # during the temporary shutdown so it creates no pods on cluster nodes.
+          nodeExporter:
+            enabled: false
     - repoURL: https://github.com/quniv/home-argocd.git
       targetRevision: HEAD
       path: manifests/monitoring
@@ -72,4 +87,5 @@ spec:
     automated:
       prune: true
       selfHeal: true
-    syncOptions: [CreateNamespace=true, ServerSideApply=true]
+    # Validate=false permits the narrow SSA replica patch in manifests/monitoring.
+    syncOptions: [CreateNamespace=true, ServerSideApply=true, Validate=false]
