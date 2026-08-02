@@ -77,6 +77,16 @@ spec:
           # during the temporary shutdown so it creates no pods on cluster nodes.
           nodeExporter:
             enabled: false
+    - chart: metrics-server
+      repoURL: https://kubernetes-sigs.github.io/metrics-server/
+      targetRevision: 3.13.1
+      helm:
+        releaseName: metrics-server
+        values: |
+          # Kubeadm kubelets do not request CA-signed serving certificates.
+          args:
+            - --kubelet-insecure-tls
+          replicas: 1
     - repoURL: https://github.com/quniv/home-argocd.git
       targetRevision: HEAD
       path: manifests/monitoring
