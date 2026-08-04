@@ -2,12 +2,15 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended", "docker:pinDigests"],
   "enabledManagers": ["argocd", "helm-values", "kubernetes"],
-  "draftPR": true,
-  "schedule": ["before 06:00 on Tuesday"],
-  "prConcurrentLimit": 3,
-  "prHourlyLimit": 1,
+  "draftPR": false,
+  "prCreation": "immediate",
+  "prConcurrentLimit": 0,
+  "prHourlyLimit": 0,
   "labels": ["dependencies", "container-image", "gitops"],
-  "automerge": false,
+  "automerge": true,
+  "automergeType": "pr",
+  "platformAutomerge": false,
+  "ignoreTests": false,
   "separateMajorMinor": true,
   "argocd": {
     "managerFilePatterns": ["/^apps\\/.+\\.ya?ml$/"]
@@ -35,11 +38,6 @@
       "versioning": "loose",
       "enabled": true,
       "addLabels": ["hermes"]
-    },
-    {
-      "description": "Year-rollover updates require an explicit dashboard approval.",
-      "matchUpdateTypes": ["major"],
-      "dependencyDashboardApproval": true
     }
   ]
 }
