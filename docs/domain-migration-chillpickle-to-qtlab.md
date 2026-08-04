@@ -33,7 +33,6 @@
 - [ ] `manifests/monitoring/httproute-grafana.yaml` → `grafana.qtlab.dev`
 - [ ] `manifests/monitoring/httproute-prometheus.yaml` → `prometheus.qtlab.dev`
 - [ ] `manifests/monitoring/httproute-alertmanager.yaml` → `alertmanager.qtlab.dev`
-- [ ] `manifests/hermes/httproute.yaml` → `hermes.qtlab.dev`
 
 **Apps with embedded hostnames:**
 - [ ] `apps/argocd.yaml` → `argocd.qtlab.dev`
@@ -65,7 +64,6 @@
 - [ ] `https://grafana.qtlab.dev` — Grafana loads, dashboards visible
 - [ ] `https://prometheus.qtlab.dev` — Prometheus UI, targets healthy
 - [ ] `https://alertmanager.qtlab.dev` — Alertmanager UI accessible
-- [ ] `https://hermes.qtlab.dev` — Hermes responds
 - [ ] `https://vvn.qtlab.dev` — vvn-ce backend API responds
 - [ ] `https://databasus.qtlab.dev` — Databasus UI loads
 

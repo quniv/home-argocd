@@ -3,19 +3,18 @@
 Renovate scans the repository's Argo CD Applications, Kubernetes manifests
 under `manifests/` and `bootstrap/`, and Helm values files. This covers Argo CD
 Helm chart target revisions and pinned container image references, including
-OpenClaw, Hermes, infrastructure images, Velero, and PostgreSQL. It creates a
-non-draft pull request as soon as the hosted Renovate job detects an update,
-without repository-level schedule, hourly, or concurrency limits. Renovate
-merges the pull request after its status checks pass. It never receives cluster,
-Argo CD, registry, or secret-manager credentials, but merging to `main` causes
-Argo CD to reconcile and deploy the updated reference automatically.
+infrastructure images, Velero, and PostgreSQL. It creates a non-draft pull
+request as soon as the hosted Renovate job detects an update, without
+repository-level schedule, hourly, or concurrency limits. Renovate merges the
+pull request after its status checks pass. It never receives cluster, Argo CD,
+registry, or secret-manager credentials, but merging to `main` causes Argo CD
+to reconcile and deploy the updated reference automatically.
 
 The images are deployed as an immutable `tag@sha256:digest` reference. The tag
 states the intended release; the digest makes the actual artifact immutable.
-OpenClaw and Hermes have explicit stable-tag rules because both use
-calendar-style releases. Other pinned image and Helm references use Renovate's
-standard datasource/version handling. Mutable references should be replaced by
-an explicit version and digest before relying on automated updates.
+Pinned image and Helm references use Renovate's standard datasource/version
+handling. Mutable references should be replaced by an explicit version and
+digest before relying on automated updates.
 
 ## First run
 
