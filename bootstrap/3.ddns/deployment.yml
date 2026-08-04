@@ -22,7 +22,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: cloudflare-ddns
-          image: timothyjmiller/cloudflare-ddns:2.1.2@sha256:37c99677e997710c1bbe9d74c93f2e3b8de3457a5ca6e28643e251b38ed05311
+          image: timothyjmiller/cloudflare-ddns:2.1.2@sha256:b9cca645296645b4755865d74a30471228c65a7696be75ad42f5c744431e8863
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
