@@ -13,7 +13,7 @@ spec:
       chart: multica
       # Watch releases at https://github.com/multica-ai/multica/releases;
       # chart targetRevision updates are not covered by the current Dependabot config.
-      targetRevision: 0.4.30
+      targetRevision: 0.4.31
       helm:
         releaseName: multica
         values: |
