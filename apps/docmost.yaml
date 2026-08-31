@@ -11,7 +11,7 @@ spec:
   sources:
     - chart: docmost
       repoURL: https://repo.helmforge.dev
-      targetRevision: 1.2.10
+      targetRevision: 1.2.11
       helm:
         releaseName: docmost
         values: |
