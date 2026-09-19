@@ -15,7 +15,7 @@ reflectionTargetNamespaces: ''
 adminSecretName: psql-admin
 adminPasswordKey: postgres-password  # checkov:skip=CKV_SECRET_6:False positive — key name, not a secret value
 pgHost: psql-postgresql.psql.svc.cluster.local
-image: postgres:18-alpine@sha256:650d7a867dc5336eff67802a1417fcc801821d73d824c608e80afbde792fe6e1
+image: postgres:18-alpine@sha256:6c538e7206ea40ff740ef27883529390a690b6ead6ba96b44c67a9f7c638e8fd
 imagePullPolicy: IfNotPresent
 resources:
   requests:
